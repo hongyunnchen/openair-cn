@@ -19,7 +19,7 @@
 #      contact@openairinterface.org
 ################################################################################
 
-# file build_helper
+# file build_helper.ovs
 # brief
 # author Laurent Thomas, Lionel GAUTHIER
 #
@@ -138,6 +138,7 @@ install_gtp_ovs_kernel_module() {
     $SUDO modprobe ip6_udp_tunnel
     $SUDO modprobe gtp
     ret=$?;[[ $ret -ne 0 ]] && return $ret
+    $SUDO depmod -a
   fi
   return 0
 }

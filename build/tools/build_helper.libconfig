@@ -19,9 +19,9 @@
 #      contact@openairinterface.org
 ################################################################################
 
-# file build_helper.asn1c
+# file build_helper.libconfig
 # brief
-# author Laurent Thomas, Lionel GAUTHIER
+# author Lionel GAUTHIER
 #
 #######################################
 SCRIPT=$(readlink -f ${BASH_SOURCE})
@@ -29,10 +29,12 @@ THIS_SCRIPT_PATH=`dirname $SCRIPT`
 source $THIS_SCRIPT_PATH/build_helper
 
 #-------------------------------------------------------------------------------
-install_asn1c_from_source(){
+# Motivation: seems libconfig++ need to be compiled with same application C++ compiler, 
+# otherwise you encounter strange linker errors. (ubuntu 16.04)
+install_libconfig_from_source(){
   if [ $1 -eq 0 ]; then
     OPTION=""
-    read -p "Do you want to install asn1c rev 1516 patched? <y/N> " prompt
+    read -p "Do you want to install libconfig (github)? <y/N> " prompt
   else
     prompt='y'
     OPTION="-y"
@@ -46,7 +48,8 @@ install_asn1c_from_source(){
       build-essential \
       flex \
       gcc \
-      libtool"
+      libtool \
+      textinfo"
   elif [[ "$OS_BASEDISTRO" == "fedora" ]]; then
     PACKAGE_LIST="\
       autoconf \
@@ -55,7 +58,8 @@ install_asn1c_from_source(){
       patch \
       flex \
       gcc \
-      libtool"
+      libtool \
+      textinfo"
   else
     echo_fatal "$OS_DISTRO is not a supported distribution."
   fi
@@ -63,17 +67,19 @@ install_asn1c_from_source(){
 
   if [[ $prompt =~ [yY](es)* ]]
   then
-    $SUDO rm -rf /tmp/asn1c
-    mkdir -p /tmp/asn1c
-    GIT_SSL_NO_VERIFY=true git clone https://gitlab.eurecom.fr/oai/asn1c.git /tmp/asn1c
-    ret=$?;[[ $ret -ne 0 ]] && return $ret
-    cd /tmp/asn1c
+    pushd /tmp
+    $SUDO rm -rf /tmp/libconfig
+    git clone https://github.com/hyperrealm/libconfig.git
+    ret=$?;[[ $ret -ne 0 ]] && popd && return $ret
+    cd libconfig
+    autoreconf -fi
     ./configure
     ret=$?;[[ $ret -ne 0 ]] && return $ret
-    make > /tmp/log_compile_asn1c 2>&1
-    ret=$?;[[ $ret -ne 0 ]] && return $ret
+    make -j `nproc` > /tmp/log_compile_config 2>&1
+    ret=$?;[[ $ret -ne 0 ]] && popd && return $ret
     $SUDO make install
-    return $?
+    ret=$?;[[ $ret -ne 0 ]] && popd && return $ret
+    popd
   fi
   return 0
 }

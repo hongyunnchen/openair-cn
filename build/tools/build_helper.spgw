@@ -19,7 +19,7 @@
 #      contact@openairinterface.org
 ################################################################################
 
-# file build_helper
+# file build_helper.spgw
 # brief
 # author Laurent Thomas, Lionel GAUTHIER
 #
@@ -30,9 +30,90 @@
 SCRIPT=$(readlink -f ${BASH_SOURCE})
 THIS_SCRIPT_PATH=`dirname $SCRIPT`
 source $THIS_SCRIPT_PATH/build_helper
-source $THIS_SCRIPT_PATH/build_helper.lfds
 source $THIS_SCRIPT_PATH/build_helper.gtpnl
+source $THIS_SCRIPT_PATH/build_helper.libconfig
 source $THIS_SCRIPT_PATH/build_helper.ovs
+
+#-------------------------------------------------------------------------------
+build_freeDiameter()
+{
+  pushd $OPENAIRCN_DIR/build/git_submodules/freeDiameter
+  patch -p1 <  $OPENAIRCN_DIR/build/patches/0001-opencoord.org.freeDiameter.patch
+  ret=$?;[[ $ret -ne 0 ]] && popd && return $ret
+  rm -rf build
+  mkdir -p build
+  cd build
+  $CMAKE ..
+  res=$?
+  [[ $res -ne 0 ]] && popd && return $res
+  awk '{if (/^DISABLE_SCTP/) gsub(/OFF/, "ON"); print}' CMakeCache.txt > tmp && mv tmp CMakeCache.txt
+  make
+  res=$?
+  [[ $res -ne 0 ]] && popd && return $res
+  $SUDO make install
+  res=$?
+  [[ $res -ne 0 ]] && popd && return $res
+  popd
+  return $?
+}
+
+#-------------------------------------------------------------------------------
+init_submodules()
+{
+  # Because of patch, TODO cleaner
+  rm -Rf $OPENAIRCN_DIR/build/git_submodules/freeDiameter/*
+  git submodule init
+  ret=$?;[[ $ret -ne 0 ]] && echo_error "git submodule init failed!" && return $ret
+  git submodule foreach --recursive git clean -xfd
+  ret=$?;[[ $ret -ne 0 ]] && return $ret
+  git submodule foreach --recursive git reset --hard
+  ret=$?;[[ $ret -ne 0 ]] && echo_error "git submodule foreach --recursive git reset --hard failed!" && return $ret
+  git submodule update
+  ret=$?;[[ $ret -ne 0 ]] && echo_error "git submodule update failed!" && return $ret
+  git submodule foreach git pull origin master
+  ret=$?;[[ $ret -ne 0 ]] && echo_error "submodule foreach git pull origin master failed!" && return $ret
+ 
+  build_freeDiameter
+  ret=$?;[[ $ret -ne 0 ]] && echo_error "build_freeDiameter failed!" && return $ret
+  #build_spdlog
+  #ret=$?;[[ $ret -ne 0 ]] && return $ret
+  
+  $SUDO ldconfig
+  ret=$?;[[ $ret -ne 0 ]] && echo_error "ldconfig failed!" && return $ret
+  return 0
+}
+
+#-------------------------------------------------------------------------------
+# arg1 is force (no interactive script)
+install_fmt() {
+  if [ $1 -eq 0 ]; then
+    read -p "Do you want to install open-source formatting library for C++ ? <y/N> " prompt
+    OPTION=""
+  else
+    prompt='y'
+    OPTION="-y"
+  fi
+
+  echo "Install fmt from source"
+
+  if [[ $prompt =~ [yY](es)* ]]
+  then
+    cd /tmp
+    echo "Downloading fmt"
+    $SUDO rm -rf /tmp/fmt*
+    git clone https://github.com/fmtlib/fmt.git
+    ret=$?;[[ $ret -ne 0 ]] && return $ret
+    cd fmt
+    cmake .
+    ret=$?;[[ $ret -ne 0 ]] && return $ret
+    make -j `nproc`
+    ret=$?;[[ $ret -ne 0 ]] && return $ret
+    $SUDO make install
+    cd /tmp
+    rm -rf /tmp/fmt*
+  fi
+  return 0
+}
 
 
 #-------------------------------------------------------------------------------
@@ -78,7 +159,7 @@ install_libevent_2.1.x_from_source() {
 
 #-------------------------------------------------------------------------------
 #arg1 is force (no interactive script)
-check_install_spgw_software() {
+check_install_spgwc_software() {
 
   if [ $1 -gt 0 ]; then 
     OPTION="-y"
@@ -141,13 +222,16 @@ check_install_spgw_software() {
   # Libraries
   if [[ $OS_DISTRO == "ubuntu" ]]; then
     case "$(get_distribution_release)" in
-	"ubuntu14.04" | "ubuntu16.04" | "ubuntu17.04" | "ubuntu17.10")
-	    specific_packages="libconfig8-dev"
-	    ;;
-	"ubuntu18.04")
-	    specific_packages="libconfig-dev"
-	    ;;
+  "ubuntu14.04" | "ubuntu16.04" | "ubuntu17.04" | "ubuntu17.10")
+      # TODO check
+      install_libconfig_from_source $1
+      specific_packages=""
+      ;;
+  "ubuntu18.04")
+      specific_packages="libconfig++-dev libasio-dev libboost-all-dev"
+      ;;
     esac
+    # removed libspdlog-dev
     PACKAGE_LIST="\
       $specific_packages \
       guile-2.0-dev \
@@ -194,12 +278,12 @@ check_install_spgw_software() {
   # Networking
   if [[ $OS_DISTRO == "ubuntu" ]]; then
     case "$(get_distribution_release)" in
-	"ubuntu14.04" | "ubuntu16.04" | "ubuntu17.04" | "ubuntu17.10")
-	    specific_packages="iproute"
-	    ;;
-	"ubuntu18.04")
-	    specific_packages="iproute2"
-	    ;;
+  "ubuntu14.04" | "ubuntu16.04" | "ubuntu17.04" | "ubuntu17.10")
+      specific_packages="iproute"
+      ;;
+  "ubuntu18.04")
+      specific_packages="iproute2"
+      ;;
     esac
     PACKAGE_LIST="\
       $specific_packages \
@@ -243,10 +327,10 @@ check_install_spgw_software() {
   echo "Install $PACKAGE_LIST"
   $SUDO $INSTALLER install $OPTION $PACKAGE_LIST
   ret=$?;[[ $ret -ne 0 ]] && return $ret
-
-  install_liblfds7.1.0_from_source $1
-  ret=$?;[[ $ret -ne 0 ]] && return $ret
-
+  
+  # Use fmt lib included in spdlog
+  #install_fmt $1
+  #ret=$?;[[ $ret -ne 0 ]] && return $ret
 
   gcc_version=`gcc --version | head -n1 | cut -d" " -f4`
   if ! version_gt $gcc_version $required_gcc_version; then
@@ -304,6 +388,185 @@ check_install_spgw_software() {
     ret=$?;[[ $ret -ne 0 ]] && return $ret
     
   fi
+
+  init_submodules
+  ret=$?;[[ $ret -ne 0 ]] && return $ret
+ 
+  return 0
+}
+
+#-------------------------------------------------------------------------------
+#arg1 is force (no interactive script)
+check_install_spgwu_software() {
+
+  if [ $1 -gt 0 ]; then 
+    OPTION="-y"
+  else
+    OPTION=""
+  fi
+
+  echo "Check supported distribution"
+  check_supported_distribution
+  [[ $? -ne 0 ]] && return $?
+
+  # prevent lock on /var/lib/dpkg/lock 
+  if [[ $OS_DISTRO == "ubuntu" ]]; then
+    #$SUDO systemctl mask apt-daily.service
+    #$SUDO systemctl mask apt-daily.timer
+    #$SUDO systemctl mask apt-daily-upgrade.service
+    #$SUDO systemctl mask apt-daily-upgrade.timer
+    $SUDO sed -i 's/1/0/g' /etc/apt/apt.conf.d/10periodic
+  fi
+  
+  update_package_db
+  
+  check_enable_epel_repos
+
+  # Compilers, generators, ...
+  if [[ $OS_DISTRO == "ubuntu" ]]; then
+    PACKAGE_LIST="\
+      autoconf \
+      automake \
+      bison \
+      build-essential \
+      cmake \
+      daemon \
+      doxygen \
+      flex \
+      gdb \
+      git"
+  elif [[ "$OS_BASEDISTRO" == "fedora" ]]; then
+    PACKAGE_LIST="\
+      autoconf \
+      automake \
+      bison \
+      $CMAKE \
+      doxygen \
+      flex \
+      gdb \
+      git"
+  else
+    echo_fatal "$OS_DISTRO is not a supported distribution."
+  fi
+  echo "Install build tools"
+  $SUDO $INSTALLER install $OPTION $PACKAGE_LIST
+  ret=$?;[[ $ret -ne 0 ]] && return $ret
+  
+
+  # Libraries
+  if [[ $OS_DISTRO == "ubuntu" ]]; then
+    case "$(get_distribution_release)" in
+  "ubuntu14.04" | "ubuntu16.04" | "ubuntu17.04" | "ubuntu17.10")
+      # TODO check
+      install_libconfig_from_source $1
+      specific_packages=""
+      ;;
+  "ubuntu18.04")
+      specific_packages="libconfig++-dev libasio-dev libboost-all-dev"
+      ;;
+    esac
+    # removed libspdlog-dev
+    PACKAGE_LIST="\
+      $specific_packages \
+      guile-2.0-dev \
+      libcurl4-gnutls-dev \
+      libevent-dev \
+      libgcrypt11-dev \
+      libgmp-dev \
+      libhogweed? \
+      libidn2-0-dev \
+      libidn11-dev \
+      libpthread-stubs0-dev \
+      libssl-dev \
+      libtool \
+      libxml2 \
+      libxml2-dev \
+      openssl \
+      python \
+      pkg-config"
+  elif [[ "$OS_BASEDISTRO" == "fedora" ]]; then
+    PACKAGE_LIST="\
+      guile-devel \
+      libconfig-devel \
+      libgcrypt-devel \
+      gmp-devel \
+      libidn2-devel \
+      libidn-devel \
+      lksctp-tools \
+      lksctp-tools-devel \
+      openssl-devel \
+      libtool \
+      libxml2 \
+      libxml2-devel \
+      openssl \
+      check \
+      python \
+      pkgconfig"
+  else
+    echo_fatal "$OS_DISTRO is not a supported distribution."
+  fi
+  echo "Install distro libs"
+  $SUDO $INSTALLER install $OPTION $PACKAGE_LIST
+  ret=$?;[[ $ret -ne 0 ]] && return $ret
+
+  # Networking
+  if [[ $OS_DISTRO == "ubuntu" ]]; then
+    case "$(get_distribution_release)" in
+  "ubuntu14.04" | "ubuntu16.04" | "ubuntu17.04" | "ubuntu17.10")
+      specific_packages="iproute"
+      ;;
+  "ubuntu18.04")
+      specific_packages="iproute2"
+      ;;
+    esac
+    PACKAGE_LIST="\
+      $specific_packages \
+      ethtool \
+      vlan"
+  elif [[ "$OS_BASEDISTRO" == "fedora" ]]; then
+    PACKAGE_LIST="\
+      ethtool \
+      iproute \
+      vconfig"
+  else
+    echo_fatal "$OS_DISTRO is not a supported distribution."
+  fi
+  echo "Install networking tools"
+  $SUDO $INSTALLER install $OPTION $PACKAGE_LIST
+  ret=$?;[[ $ret -ne 0 ]] && return $ret
+
+  if [[ "$OS_DISTRO" == "ubuntu" ]]; then
+    PACKAGE_LIST="\
+      check \
+      python-dev \
+      python-pexpect \
+      unzip"
+  elif [[ "$OS_DISTRO" == "rhel" ]] || [[ "$OS_DISTRO" == "centos" ]]; then
+    PACKAGE_LIST="\
+      check \
+      python-devel \
+      pexpect \
+      unzip"
+  elif [[ "$OS_DISTRO" == "fedora" ]]; then
+    PACKAGE_LIST="\
+      check \
+      python-devel \
+      python2-pexpect \
+      unzip"
+  else
+    echo_fatal "$OS_DISTRO is not a supported distribution."
+  fi
+  echo "Install $PACKAGE_LIST"
+  $SUDO $INSTALLER install $OPTION $PACKAGE_LIST
+  ret=$?;[[ $ret -ne 0 ]] && return $ret
+  
+  # Use fmt lib included in spdlog
+  #install_fmt $1
+  #ret=$?;[[ $ret -ne 0 ]] && return $ret
+
+  init_submodules
+  ret=$?;[[ $ret -ne 0 ]] && return $ret
+ 
   return 0
 }
 
