@@ -236,45 +236,29 @@ find_package(Threads REQUIRED)
 
 ADD_SUBDIRECTORY(${CMAKE_CURRENT_SOURCE_DIR}/../../src/common_xgw ${CMAKE_CURRENT_BINARY_DIR}/common_xgw)
 ADD_SUBDIRECTORY(${CMAKE_CURRENT_SOURCE_DIR}/../../src/common_xgw/utils ${CMAKE_CURRENT_BINARY_DIR}/utils)
-ADD_SUBDIRECTORY(${CMAKE_CURRENT_SOURCE_DIR}/../../src/oai_spgw_c/gtpv2-c ${CMAKE_CURRENT_BINARY_DIR}/gtpv2-c)
 ADD_SUBDIRECTORY(${CMAKE_CURRENT_SOURCE_DIR}/../../src/pfcp ${CMAKE_CURRENT_BINARY_DIR}/pfcp)
 
 
-#ENABLE_TESTING()
-#ADD_SUBDIRECTORY(${CMAKE_CURRENT_SOURCE_DIR}/../../src/test ${CMAKE_CURRENT_BINARY_DIR}/test)
-
 ################################################################################
-# Specific part for oai_spgw_c folder
+# Specific part for oai_spgw_u folder
 
-add_definitions("-DPACKAGE_NAME=\"SPGW-C\"")
+add_definitions("-DPACKAGE_NAME=\"SPGW-U\"")
 
-include_directories(${SRC_TOP_DIR}/pgw_c)
-include_directories(${SRC_TOP_DIR}/oai_spgw_c)
+include_directories(${SRC_TOP_DIR}/oai_spgw_u)
 include_directories(${SRC_TOP_DIR}/common_xgw)
 include_directories(${SRC_TOP_DIR}/common_xgw/itti)
-include_directories(${SRC_TOP_DIR}/common_xgw/message_utils)
 include_directories(${SRC_TOP_DIR}/common_xgw/msg)
 include_directories(${SRC_TOP_DIR}/common_xgw/utils)
-include_directories(${SRC_TOP_DIR}/oai_spgw_c/s11)
-include_directories(${SRC_TOP_DIR}/oai_spgw_c/udp)
-include_directories(${SRC_TOP_DIR}/sgw_c)
+include_directories(${SRC_TOP_DIR}/spgw_u)
 include_directories(${SRC_TOP_DIR}/../build/git_submodules/spdlog/include)
 
-add_executable(spgwc
-  ${SRC_TOP_DIR}/oai_spgw_c/main.cpp
-  ${SRC_TOP_DIR}/oai_spgw_c/options.cpp
+add_executable(spgwu
+  ${SRC_TOP_DIR}/oai_spgw_u/main.cpp
+  ${SRC_TOP_DIR}/oai_spgw_u/options.cpp
   ${SRC_TOP_DIR}/common_xgw/itti/itti.cpp
   ${SRC_TOP_DIR}/common_xgw/itti/itti_msg.cpp
   )
 
 message ( "CONFIG_LIBRARIES = ${CONFIG_LIBRARIES}")
-target_link_libraries (spgwc -Wl,--start-group CN_UTILS SGW_C PGW_C GTPV2C PFCP 3GPP_COMMON_TYPES -Wl,--end-group pthread m rt config++ event boost_system)
-
-#target_link_libraries (spgw_c asan
-#      -Wl,--start-group
-#      BSTR CN_UTILS GTPV1U GTPV2C HASHTABLE 
-#      SGW S11_SGW UDP_SERVER ${MSC_LIB} OPENFLOW_CONTROLLER ITTI  3GPP_TYPES
-#      -Wl,--end-group
-#      pthread m rt ${LFDS} ${CONFIG_LIBRARIES} event
-#      )
+target_link_libraries (spgwu -Wl,--start-group CN_UTILS SPGW_U PFCP 3GPP_COMMON_TYPES -Wl,--end-group pthread m rt config++ event boost_system)
 

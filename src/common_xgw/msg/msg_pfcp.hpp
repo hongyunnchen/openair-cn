@@ -572,9 +572,8 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.4.3.1-3: PFD
   class pfd : public proto::pfcp::pfcp_ies_container {
-      std::pair<bool, core::pfcp::pfd_contents_t>                    pfd_contents;
-
   public:
+      std::pair<bool, core::pfcp::pfd_contents_t>                    pfd_contents;
 
       pfd() {
         pfd_contents = {};
@@ -593,10 +592,10 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.4.3.1-2: Application ID's PFDs
   class application_ids_pfds : public proto::pfcp::pfcp_ies_container {
+  public:
       std::pair<bool, core::pfcp::application_id_t>                    application_id;
       std::pair<bool, std::vector<core::pfcp::pfd>>                    pfds;
 
-  public:
 
       application_ids_pfds() {
         application_id = {};
@@ -619,9 +618,8 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.4.5.1.2-1: User Plane Path Failure IE within PFCP Node Report Request
   class user_plane_path_failure_report : public proto::pfcp::pfcp_ies_container {
-      std::pair<bool, core::pfcp::remote_gtp_u_peer_t>                    remote_gtp_u_peer;
-
   public:
+      std::pair<bool, core::pfcp::remote_gtp_u_peer_t>                    remote_gtp_u_peer;
 
       user_plane_path_failure_report() {
         remote_gtp_u_peer = {};
@@ -640,6 +638,7 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.2.2-3: Ethernet Packet Filter IE within PFCP Session Establishment Request
   class ethernet_packet_filter : public proto::pfcp::pfcp_ies_container {
+  public:
       std::pair<bool, core::pfcp::ethernet_filter_id_t>                    ethernet_filter_id;
       std::pair<bool, core::pfcp::ethernet_filter_properties_t>                    ethernet_filter_properties;
       std::pair<bool, core::pfcp::mac_address_t>                    mac_address;
@@ -648,7 +647,6 @@ namespace oai::cn::core::pfcp {
       std::pair<bool, core::pfcp::s_tag_t>                    s_tag;
       std::pair<bool, core::pfcp::sdf_filter_t>                    sdf_filter;
 
-  public:
 
       ethernet_packet_filter() {
         ethernet_filter_id = {};
@@ -691,6 +689,7 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.2.2-2: PDI IE within PFCP Session Establishment Request
   class pdi : public proto::pfcp::pfcp_ies_container {
+  public:
       std::pair<bool, core::pfcp::source_interface_t>                    source_interface;
       std::pair<bool, core::pfcp::fteid_t>                    local_fteid;
       std::pair<bool, core::pfcp::network_instance_t>                    network_instance;
@@ -704,7 +703,6 @@ namespace oai::cn::core::pfcp {
       std::pair<bool, core::pfcp::framed_routing_t>                    framed_routing;
       std::pair<bool, core::pfcp::framed_ipv6_route_t>                    framed_ipv6_route;
 
-  public:
 
       pdi() {
         source_interface = {};
@@ -767,6 +765,7 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.2.2-1: Create PDR IE within PFCP Session Establishment Request
   class create_pdr : public proto::pfcp::pfcp_ies_container {
+  public:
       std::pair<bool, core::pfcp::pdr_id_t>                    pdr_id;
       std::pair<bool, core::pfcp::precedence_t>                precedence;
       std::pair<bool, core::pfcp::pdi>                         pdi;
@@ -776,7 +775,6 @@ namespace oai::cn::core::pfcp {
       std::pair<bool, core::pfcp::qer_id_t>                    qer_id;
       std::pair<bool, core::pfcp::activate_predefined_rules_t> activate_predefined_rules;
 
-  public:
 
       create_pdr() {
         pdr_id = {};
@@ -823,6 +821,7 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.2.3-2: Forwarding Parameters IE in FAR
   class forwarding_parameters : public proto::pfcp::pfcp_ies_container {
+  public:
       std::pair<bool, core::pfcp::destination_interface_t>                    destination_interface;
       std::pair<bool, core::pfcp::network_instance_t>                    network_instance;
       std::pair<bool, core::pfcp::redirect_information_t>                    redirect_information;
@@ -833,7 +832,6 @@ namespace oai::cn::core::pfcp {
       std::pair<bool, core::pfcp::traffic_endpoint_id_t>                    linked_traffic_endpoint_id_t;
       std::pair<bool, core::pfcp::proxying_t>                    proxying;
 
-  public:
 
       forwarding_parameters() {
         destination_interface = {};
@@ -884,12 +882,12 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.2.3-3: Duplicating Parameters IE in FAR
   class duplicating_parameters : public proto::pfcp::pfcp_ies_container {
+  public:
       std::pair<bool, core::pfcp::destination_interface_t>                    destination_interface;
       std::pair<bool, core::pfcp::outer_header_creation_t>                    outer_header_creation;
       std::pair<bool, core::pfcp::transport_level_marking_t>                    transport_level_marking;
       std::pair<bool, core::pfcp::forwarding_policy_t>                    forwarding_policy;
 
-  public:
 
       duplicating_parameters() {
         destination_interface = {};
@@ -920,13 +918,13 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.2.3-1: Create FAR IE within PFCP Session Establishment Request
   class create_far : public proto::pfcp::pfcp_ies_container {
+  public:
       std::pair<bool, core::pfcp::far_id_t>                    far_id;
       std::pair<bool, core::pfcp::apply_action_t>                    apply_action;
       std::pair<bool, core::pfcp::forwarding_parameters>                    forwarding_parameters;
       std::pair<bool, core::pfcp::duplicating_parameters>                    duplicating_parameters;
       std::pair<bool, core::pfcp::bar_id_t>                    bar_id;
 
-  public:
 
       create_far() {
         far_id = {};
@@ -961,10 +959,9 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.2.4-2: Aggregated URRs
   class aggregated_urrs : public proto::pfcp::pfcp_ies_container {
+  public:
       std::pair<bool, core::pfcp::aggregated_urr_id_t>                    aggregated_urr_id;
       std::pair<bool, core::pfcp::multiplier_t>                    multiplier;
-
-  public:
 
       aggregated_urrs() {
         aggregated_urr_id = {};
@@ -987,13 +984,13 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.2.4-3: Additional Monitoring Time
   class additional_monitoring_time : public proto::pfcp::pfcp_ies_container {
+  public:
       std::pair<bool, core::pfcp::monitoring_time_t>                    monitoring_time;
       std::pair<bool, core::pfcp::subsequent_volume_threshold_t>                    subsequent_volume_threshold;
       std::pair<bool, core::pfcp::subsequent_time_threshold_t>                    subsequent_time_threshold;
       std::pair<bool, core::pfcp::subsequent_volume_quota_t>                    subsequent_volume_quota;
       std::pair<bool, core::pfcp::subsequent_time_quota_t>                    subsequent_time_quota;
 
-  public:
 
       additional_monitoring_time() {
         monitoring_time = {};
@@ -1028,10 +1025,9 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.2.4-4: Event Information
   class event_information : public proto::pfcp::pfcp_ies_container {
+  public:
       std::pair<bool, core::pfcp::event_id_t>                    event_id;
       std::pair<bool, core::pfcp::event_threshold_t>                    event_threshold;
-
-  public:
 
       event_information() {
         event_id = {};
@@ -1054,6 +1050,7 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.2.4-1: Create URR IE within PFCP Session Establishment Request
   class create_urr : public proto::pfcp::pfcp_ies_container {
+  public:
       std::pair<bool, core::pfcp::urr_id_t>                    urr_id;
       std::pair<bool, core::pfcp::measurement_method_t>                    measurement_method;
       std::pair<bool, core::pfcp::reporting_triggers_t>                    reporting_triggers;
@@ -1078,8 +1075,6 @@ namespace oai::cn::core::pfcp {
       std::pair<bool, core::pfcp::far_id_t>                    far_id_for_quota_action;
       std::pair<bool, core::pfcp::ethernet_inactivity_timer_t>                    ethernet_inactivity_timer;
       std::pair<bool, core::pfcp::additional_monitoring_time>                    additional_monitoring_time;
-
-  public:
 
       create_urr() {
         urr_id = {};
@@ -1190,6 +1185,7 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.2.5-1: Create QER IE within PFCP Session Establishment Request
   class create_qer : public proto::pfcp::pfcp_ies_container {
+  public:
       std::pair<bool, core::pfcp::qer_id_t>                    qer_id;
       std::pair<bool, core::pfcp::qer_correlation_id_t>                    qer_correlation_id;
       std::pair<bool, core::pfcp::gate_status_t>                    gate_status;
@@ -1199,8 +1195,6 @@ namespace oai::cn::core::pfcp {
       std::pair<bool, core::pfcp::dl_flow_level_marking_t>                    dl_flow_level_marking;
       std::pair<bool, core::pfcp::qfi_t>                    qos_flow_identifier;
       std::pair<bool, core::pfcp::rqi_t>                    reflective_qos;
-
-  public:
 
       create_qer() {
         qer_id = {};
@@ -1251,11 +1245,10 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.2.6-1: Create BAR IE within PFCP Session Establishment Request
   class create_bar : public proto::pfcp::pfcp_ies_container {
+  public:
       std::pair<bool, core::pfcp::bar_id_t>                    bar_id;
       std::pair<bool, core::pfcp::downlink_data_notification_delay_t>                    downlink_data_notification_delay;
       std::pair<bool, core::pfcp::suggested_buffering_packets_count_t>                    suggested_buffering_packets_count;
-
-  public:
 
       create_bar() {
         bar_id = {};
@@ -1282,6 +1275,7 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.2.7-1: Create Traffic Endpoint IE within PFCP Session Establishment Request
   class create_traffic_endpoint : public proto::pfcp::pfcp_ies_container {
+  public:
       std::pair<bool, core::pfcp::traffic_endpoint_id_t>                    traffic_endpoint_id;
       std::pair<bool, core::pfcp::fteid_t>                    local_fteid;
       std::pair<bool, core::pfcp::network_instance_t>                    network_instance;
@@ -1290,8 +1284,6 @@ namespace oai::cn::core::pfcp {
       std::pair<bool, core::pfcp::framed_route_t>                    framed_route;
       std::pair<bool, core::pfcp::framed_routing_t>                    framed_routing;
       std::pair<bool, core::pfcp::framed_ipv6_route_t>                    framed_ipv6_route;
-
-  public:
 
       create_traffic_endpoint() {
         traffic_endpoint_id = {};
@@ -1338,10 +1330,9 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.3.2-1: Created PDR IE within PFCP Session Establishment Response
   class created_pdr : public proto::pfcp::pfcp_ies_container {
+  public:
       std::pair<bool, core::pfcp::pdr_id_t>                    pdr_id;
       std::pair<bool, core::pfcp::fteid_t>                    local_fteid;
-
-  public:
 
       created_pdr() {
         pdr_id = {};
@@ -1364,10 +1355,9 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.3.3-1: Load Control Information IE within PFCP Session Establishment Response
   class load_control_information : public proto::pfcp::pfcp_ies_container {
+  public:
       std::pair<bool, core::pfcp::sequence_number_t>                    load_control_sequence_number;
       std::pair<bool, core::pfcp::metric_t>                    load_metric;
-
-  public:
 
       load_control_information() {
         load_control_sequence_number = {};
@@ -1390,12 +1380,11 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.3.4-1: Overload Control Information IE within PFCP Session Establishment Response
   class overload_control_information : public proto::pfcp::pfcp_ies_container {
+  public:
       std::pair<bool, core::pfcp::sequence_number_t>                    overload_control_sequence_number;
       std::pair<bool, core::pfcp::metric_t>                    overload_reduction_metric;
       std::pair<bool, core::pfcp::timer_t>                    period_of_validity;
       std::pair<bool, core::pfcp::oci_flags_t>                    overload_control_information_flags;
-
-  public:
 
       overload_control_information() {
         overload_control_sequence_number = {};
@@ -1426,6 +1415,7 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.4.2-1: Update PDR IE within PFCP Session Modification Request
   class update_pdr : public proto::pfcp::pfcp_ies_container {
+  public:
       std::pair<bool, core::pfcp::pdr_id_t>                    pdr_id;
       std::pair<bool, core::pfcp::outer_header_removal_t>                    outer_header_removal;
       std::pair<bool, core::pfcp::precedence_t>                    precedence;
@@ -1435,8 +1425,6 @@ namespace oai::cn::core::pfcp {
       std::pair<bool, core::pfcp::qer_id_t>                    qer_id;
       std::pair<bool, core::pfcp::activate_predefined_rules_t>                    activate_predefined_rules;
       std::pair<bool, core::pfcp::deactivate_predefined_rules_t>                    deactivate_predefined_rules;
-
-  public:
 
       update_pdr() {
         pdr_id = {};
@@ -1487,6 +1475,7 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.4.3-2: Update Forwarding Parameters IE in FAR
   class update_forwarding_parameters : public proto::pfcp::pfcp_ies_container {
+  public:
       std::pair<bool, core::pfcp::destination_interface_t>                    destination_interface;
       std::pair<bool, core::pfcp::network_instance_t>                    network_instance;
       std::pair<bool, core::pfcp::outer_header_creation_t>                    outer_header_creation;
@@ -1495,8 +1484,6 @@ namespace oai::cn::core::pfcp {
       std::pair<bool, core::pfcp::header_enrichment_t>                    header_enrichment;
       std::pair<bool, core::pfcp::pfcpsmreq_flags_t>                    pfcpsmreq_flags;
       std::pair<bool, core::pfcp::traffic_endpoint_id_t>                    linked_traffic_endpoint_id;
-
-  public:
 
       update_forwarding_parameters() {
         destination_interface = {};
@@ -1543,12 +1530,11 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.4.3-3: Update Duplicating Parameters IE in FAR
   class update_duplicating_parameters : public proto::pfcp::pfcp_ies_container {
+  public:
       std::pair<bool, core::pfcp::destination_interface_t>                    destination_interface;
       std::pair<bool, core::pfcp::outer_header_creation_t>                    outer_header_creation;
       std::pair<bool, core::pfcp::transport_level_marking_t>                    transport_level_marking;
       std::pair<bool, core::pfcp::forwarding_policy_t>                    forwarding_policy;
-
-  public:
 
       update_duplicating_parameters() {
         destination_interface = {};
@@ -1579,13 +1565,12 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.4.3-1: Update FAR IE within PFCP Session Modification Request
   class update_far : public proto::pfcp::pfcp_ies_container {
+  public:
       std::pair<bool, core::pfcp::far_id_t>                    far_id;
       std::pair<bool, core::pfcp::apply_action_t>                    apply_action;
       std::pair<bool, core::pfcp::update_forwarding_parameters>                    update_forwarding_parameters;
       std::pair<bool, core::pfcp::update_duplicating_parameters>                    update_duplicating_parameters;
       std::pair<bool, core::pfcp::bar_id_t>                    bar_id;
-
-  public:
 
       update_far() {
         far_id = {};
@@ -1620,6 +1605,7 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.4.4-1: Update URR IE within PFCP Session Modification Request
   class update_urr : public proto::pfcp::pfcp_ies_container {
+  public:
       std::pair<bool, core::pfcp::urr_id_t>                    urr_id;
       std::pair<bool, core::pfcp::measurement_method_t>                    measurement_method;
       std::pair<bool, core::pfcp::reporting_triggers_t>                    reporting_triggers;
@@ -1644,8 +1630,6 @@ namespace oai::cn::core::pfcp {
       std::pair<bool, core::pfcp::far_id_t>                    far_id_for_quota_action;
       std::pair<bool, core::pfcp::ethernet_inactivity_timer_t>                    ethernet_inactivity_timer;
       std::pair<bool, core::pfcp::additional_monitoring_time>                    additional_monitoring_time;
-
-  public:
 
       update_urr() {
         urr_id = {};
@@ -1756,6 +1740,7 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.4.5-1: Update QER IE within PFCP Session Modification Request
   class update_qer : public proto::pfcp::pfcp_ies_container {
+  public:
       std::pair<bool, core::pfcp::qer_id_t>                    qer_id;
       std::pair<bool, core::pfcp::qer_correlation_id_t>                    qer_correlation_id;
       std::pair<bool, core::pfcp::gate_status_t>                    gate_status;
@@ -1765,8 +1750,6 @@ namespace oai::cn::core::pfcp {
       std::pair<bool, core::pfcp::dl_flow_level_marking_t>                    dl_flow_level_marking;
       std::pair<bool, core::pfcp::qfi_t>                    qos_flow_identifier;
       std::pair<bool, core::pfcp::rqi_t>                    reflective_qos;
-
-  public:
 
       update_qer() {
         qer_id = {};
@@ -1817,9 +1800,8 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.4.6-1: Remove PDR IE within PFCP Session Modification Request
   class remove_pdr : public proto::pfcp::pfcp_ies_container {
-      std::pair<bool, core::pfcp::pdr_id_t>                    pdr_id;
-
   public:
+      std::pair<bool, core::pfcp::pdr_id_t>                    pdr_id;
 
       remove_pdr() {
         pdr_id = {};
@@ -1838,9 +1820,8 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.4.7-1: Remove FAR IE within PFCP Session Modification Request
   class remove_far : public proto::pfcp::pfcp_ies_container {
-      std::pair<bool, core::pfcp::far_id_t>                    far_id;
-
   public:
+      std::pair<bool, core::pfcp::far_id_t>                    far_id;
 
       remove_far() {
         far_id = {};
@@ -1859,9 +1840,8 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.4.8-1: Remove URR IE within PFCP Session Modification Request
   class remove_urr : public proto::pfcp::pfcp_ies_container {
-      std::pair<bool, core::pfcp::urr_id_t>                    urr_id;
-
   public:
+      std::pair<bool, core::pfcp::urr_id_t>                    urr_id;
 
       remove_urr() {
         urr_id = {};
@@ -1880,9 +1860,8 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.4.9-1: Remove QER IE PFCP Session Modification Request
   class remove_qer : public proto::pfcp::pfcp_ies_container {
-      std::pair<bool, core::pfcp::qer_id_t>                    qer_id;
-
   public:
+      std::pair<bool, core::pfcp::qer_id_t>                    qer_id;
 
       remove_qer() {
         qer_id = {};
@@ -1901,9 +1880,8 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.4.10-1: Query URR IE within PFCP Session Modification Request
   class query_urr : public proto::pfcp::pfcp_ies_container {
-      std::pair<bool, core::pfcp::urr_id_t>                    urr_id;
-
   public:
+      std::pair<bool, core::pfcp::urr_id_t>                    urr_id;
 
       query_urr() {
         urr_id = {};
@@ -1922,11 +1900,10 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.4.11-1: Update BAR IE within PFCP Session Modification Request
   class update_bar_within_pfcp_session_modification_request : public proto::pfcp::pfcp_ies_container {
+  public:
       std::pair<bool, core::pfcp::bar_id_t>                    bar_id;
       std::pair<bool, core::pfcp::downlink_data_notification_delay_t>                    downlink_data_notification_delay;
       std::pair<bool, core::pfcp::suggested_buffering_packets_count_t>                    suggested_buffering_packets_count;
-
-  public:
 
       update_bar_within_pfcp_session_modification_request() {
         bar_id = {};
@@ -1953,9 +1930,8 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.4.12-1: Remove BAR IE within PFCP Session Modification Request
   class remove_bar : public proto::pfcp::pfcp_ies_container {
-      std::pair<bool, core::pfcp::bar_id_t>                    bar_id;
-
   public:
+      std::pair<bool, core::pfcp::bar_id_t>                    bar_id;
 
       remove_bar() {
         bar_id = {};
@@ -1974,10 +1950,9 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.3.5-1: Created Traffic Endpoint IE within Sx Session Establishment Response
   class created_traffic_endpoint : public proto::pfcp::pfcp_ies_container {
+  public:
       std::pair<bool, core::pfcp::traffic_endpoint_id_t>                    traffic_endpoint_id;
       std::pair<bool, core::pfcp::fteid_t>                    local_fteid;
-
-  public:
 
       created_traffic_endpoint() {
         traffic_endpoint_id = {};
@@ -2000,6 +1975,7 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.4.13-1: Update Traffic Endpoint IE within Sx Session Modification Request
   class update_traffic_endpoint : public proto::pfcp::pfcp_ies_container {
+  public:
       std::pair<bool, core::pfcp::traffic_endpoint_id_t>                    traffic_endpoint_id;
       std::pair<bool, core::pfcp::fteid_t>                    local_fteid;
       std::pair<bool, core::pfcp::network_instance_t>                    network_instance;
@@ -2007,8 +1983,6 @@ namespace oai::cn::core::pfcp {
       std::pair<bool, core::pfcp::framed_route_t>                    framed_route;
       std::pair<bool, core::pfcp::framed_routing_t>                    framed_routing;
       std::pair<bool, core::pfcp::framed_ipv6_route_t>                    framed_ipv6_route;
-
-  public:
 
       update_traffic_endpoint() {
         traffic_endpoint_id = {};
@@ -2051,9 +2025,8 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.4.14-1: Remove Traffic Endpoint IE within Sx Session Modification Request
   class remove_traffic_endpoint : public proto::pfcp::pfcp_ies_container {
-      std::pair<bool, core::pfcp::traffic_endpoint_id_t>                    traffic_endpoint_id;
-
   public:
+      std::pair<bool, core::pfcp::traffic_endpoint_id_t>                    traffic_endpoint_id;
 
       remove_traffic_endpoint() {
         traffic_endpoint_id = {};
@@ -2072,10 +2045,9 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.8.3-3: Ethernet Traffic Information IE within Usage Report IE
   class ethernet_traffic_information : public proto::pfcp::pfcp_ies_container {
+  public:
       std::pair<bool, core::pfcp::mac_addresses_detected_t>                    mac_addresses_detected;
       std::pair<bool, core::pfcp::mac_addresses_removed_t>                    mac_addresses_removed;
-
-  public:
 
       ethernet_traffic_information() {
         mac_addresses_detected = {};
@@ -2098,6 +2070,7 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.5.2-1: Usage Report IE within PFCP Session Modification Response
   class usage_report_within_pfcp_session_modification_response : public proto::pfcp::pfcp_ies_container {
+  public:
       std::pair<bool, core::pfcp::urr_id_t>                    urr_id;
       std::pair<bool, core::pfcp::ur_seqn_t>                    ur_seqn;
       std::pair<bool, core::pfcp::usage_report_trigger_t>                    usage_report_trigger;
@@ -2110,8 +2083,6 @@ namespace oai::cn::core::pfcp {
       std::pair<bool, core::pfcp::usage_information_t>                    usage_information;
       std::pair<bool, core::pfcp::query_urr_reference_t>                    query_urr_reference;
       std::pair<bool, core::pfcp::ethernet_traffic_information>                    ethernet_traffic_information;
-
-  public:
 
       usage_report_within_pfcp_session_modification_response() {
         urr_id = {};
@@ -2174,6 +2145,7 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.7.2-1: Usage Report IE within PFCP Session Deletion Response
   class usage_report_within_pfcp_session_deletion_response : public proto::pfcp::pfcp_ies_container {
+  public:
       std::pair<bool, core::pfcp::urr_id_t>                    urr_id;
       std::pair<bool, core::pfcp::ur_seqn_t>                    ur_seqn;
       std::pair<bool, core::pfcp::usage_report_trigger_t>                    usage_report_trigger;
@@ -2185,8 +2157,6 @@ namespace oai::cn::core::pfcp {
       std::pair<bool, core::pfcp::time_of_last_packet_t>                    time_of_last_packet;
       std::pair<bool, core::pfcp::usage_information_t>                    usage_information;
       std::pair<bool, core::pfcp::ethernet_traffic_information>                    ethernet_traffic_information;
-
-  public:
 
       usage_report_within_pfcp_session_deletion_response() {
         urr_id = {};
@@ -2245,10 +2215,9 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.8.2-1: Downlink Data Report IE within PFCP Session Report Request
   class downlink_data_report : public proto::pfcp::pfcp_ies_container {
+  public:
       std::pair<bool, core::pfcp::pdr_id_t>                    pdr_id;
       std::pair<bool, core::pfcp::downlink_data_service_information_t>                    downlink_data_service_information;
-
-  public:
 
       downlink_data_report() {
         pdr_id = {};
@@ -2271,11 +2240,10 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.8.3-2: Application Detection Information IE within Usage Report IE
   class application_detection_information : public proto::pfcp::pfcp_ies_container {
+  public:
       std::pair<bool, core::pfcp::application_id_t>                    application_id;
       std::pair<bool, core::pfcp::application_instance_id_t>                    application_instance_id;
       std::pair<bool, core::pfcp::flow_information_t>                    flow_information;
-
-  public:
 
       application_detection_information() {
         application_id = {};
@@ -2302,9 +2270,8 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.8.3-2A: Event Reporting IE within Usage Report IE
   class event_reporting : public proto::pfcp::pfcp_ies_container {
-      std::pair<bool, core::pfcp::event_id_t>                    event_id;
-
   public:
+      std::pair<bool, core::pfcp::event_id_t>                    event_id;
 
       event_reporting() {
         event_id = {};
@@ -2323,6 +2290,7 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.8.3-1: Usage Report IE within PFCP Session Report Request
   class usage_report_within_pfcp_session_report_request : public proto::pfcp::pfcp_ies_container {
+  public:
       std::pair<bool, core::pfcp::urr_id_t>                    urr_id;
       std::pair<bool, core::pfcp::ur_seqn_t>                    ur_seqn;
       std::pair<bool, core::pfcp::usage_report_trigger_t>                    usage_report_trigger;
@@ -2339,8 +2307,6 @@ namespace oai::cn::core::pfcp {
       std::pair<bool, core::pfcp::query_urr_reference_t>                    query_urr_reference;
       std::pair<bool, core::pfcp::event_reporting>                    event_reporting;
       std::pair<bool, core::pfcp::ethernet_traffic_information>                    ethernet_traffic_information;
-
-  public:
 
       usage_report_within_pfcp_session_report_request() {
         urr_id = {};
@@ -2419,9 +2385,8 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.8.4-1: Error Indication Report IE within PFCP Session Report Request
   class error_indication_report : public proto::pfcp::pfcp_ies_container {
-      std::pair<bool, core::pfcp::fteid_t>                    remote_fteid;
-
   public:
+      std::pair<bool, core::pfcp::fteid_t>                    remote_fteid;
 
       error_indication_report() {
         remote_fteid = {};
@@ -2440,13 +2405,12 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.9.2-1: Update BAR IE in PFCP Session Report Response
   class update_bar_within_pfcp_session_report_response : public proto::pfcp::pfcp_ies_container {
+  public:
       std::pair<bool, core::pfcp::bar_id_t>                    bar_id;
       std::pair<bool, core::pfcp::downlink_data_notification_delay_t>                    downlink_data_notification_delay;
       std::pair<bool, core::pfcp::dl_buffering_duration_t>                    dl_buffering_duration;
       std::pair<bool, core::pfcp::dl_buffering_suggested_packet_count_t>                    dl_buffering_buffering_suggested_packet_count;
       std::pair<bool, core::pfcp::suggested_buffering_packets_count_t>                    suggested_buffering_packets_count;
-
-  public:
 
       update_bar_within_pfcp_session_report_response() {
         bar_id = {};

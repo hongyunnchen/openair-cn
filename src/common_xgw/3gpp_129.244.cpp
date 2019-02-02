@@ -293,12 +293,12 @@ pfcp_ie * pfcp_ie::new_pfcp_ie_from_stream(std::istream& is) {
         return ie;
       }
       break;
-//    case PFCP_IE_UP_FUNCTION_FEATURES: {
-//        pfcp_up_function_features_ie *ie = new pfcp_up_function_features_ie(tlv);
-//        ie->load_from(is);
-//        return ie;
-//      }
-//      break;
+    case PFCP_IE_UP_FUNCTION_FEATURES: {
+        pfcp_up_function_features_ie *ie = new pfcp_up_function_features_ie(tlv);
+        ie->load_from(is);
+        return ie;
+      }
+      break;
     case PFCP_IE_APPLY_ACTION: {
         pfcp_apply_action_ie *ie = new pfcp_apply_action_ie(tlv);
         ie->load_from(is);
@@ -569,12 +569,12 @@ pfcp_ie * pfcp_ie::new_pfcp_ie_from_stream(std::istream& is) {
         return ie;
       }
       break;
-//    case PFCP_IE_CP_FUNCTION_FEATURES: {
-//        pfcp_cp_function_features_ie *ie = new pfcp_cp_function_features_ie(tlv);
-//        ie->load_from(is);
-//        return ie;
-//      }
-//      break;
+    case PFCP_IE_CP_FUNCTION_FEATURES: {
+        pfcp_cp_function_features_ie *ie = new pfcp_cp_function_features_ie(tlv);
+        ie->load_from(is);
+        return ie;
+      }
+      break;
 //    case PFCP_IE_USAGE_INFORMATION: {
 //        pfcp_usage_information_ie *ie = new pfcp_usage_information_ie(tlv);
 //        ie->load_from(is);
@@ -611,12 +611,12 @@ pfcp_ie * pfcp_ie::new_pfcp_ie_from_stream(std::istream& is) {
         return ie;
       }
       break;
-//    case PFCP_IE_RECOVERY_TIME_STAMP: {
-//        pfcp_recovery_time_stamp_ie *ie = new pfcp_recovery_time_stamp_ie(tlv);
-//        ie->load_from(is);
-//        return ie;
-//      }
-//      break;
+    case PFCP_IE_RECOVERY_TIME_STAMP: {
+        pfcp_recovery_time_stamp_ie *ie = new pfcp_recovery_time_stamp_ie(tlv);
+        ie->load_from(is);
+        return ie;
+      }
+      break;
 //    case PFCP_IE_DL_FLOW_LEVEL_MARKING: {
 //        pfcp_dl_flow_level_marking_ie *ie = new pfcp_dl_flow_level_marking_ie(tlv);
 //        ie->load_from(is);
@@ -731,12 +731,12 @@ pfcp_ie * pfcp_ie::new_pfcp_ie_from_stream(std::istream& is) {
 //        return ie;
 //      }
 //      break;
-//    case PFCP_IE_USER_PLANE_IP_RESOURCE_INFORMATION: {
-//        pfcp_user_plane_ip_resource_information_ie *ie = new pfcp_user_plane_ip_resource_information_ie(tlv);
-//        ie->load_from(is);
-//        return ie;
-//      }
-//      break;
+    case PFCP_IE_USER_PLANE_IP_RESOURCE_INFORMATION: {
+        pfcp_user_plane_ip_resource_information_ie *ie = new pfcp_user_plane_ip_resource_information_ie(tlv);
+        ie->load_from(is);
+        return ie;
+      }
+      break;
     case PFCP_IE_USER_PLANE_INACTIVITY_TIMER: {
         pfcp_user_plane_inactivity_timer_ie *ie = new pfcp_user_plane_inactivity_timer_ie(tlv);
         ie->load_from(is);
@@ -979,6 +979,16 @@ pfcp_ie * pfcp_ie::new_pfcp_ie_from_stream(std::istream& is) {
     Logger::pfcp().error("GTP IE type %d length %d", tlv.get_type(), tlv.get_length());
     return nullptr;
   }
+}
+//------------------------------------------------------------------------------
+pfcp_msg::pfcp_msg(const pfcp_association_setup_request& pfcp_ies) : pfcp_msg_header() {
+  ies = {};
+  set_message_type(PFCP_ASSOCIATION_SETUP_REQUEST);
+  if (pfcp_ies.node_id.first) {std::shared_ptr<pfcp_node_id_ie> sie(new pfcp_node_id_ie(pfcp_ies.node_id.second)); add_ie(sie);}
+  if (pfcp_ies.recovery_time_stamp.first) {std::shared_ptr<pfcp_recovery_time_stamp_ie> sie(new pfcp_recovery_time_stamp_ie(pfcp_ies.recovery_time_stamp.second)); add_ie(sie);}
+  if (pfcp_ies.up_function_features.first) {std::shared_ptr<pfcp_up_function_features_ie> sie(new pfcp_up_function_features_ie(pfcp_ies.up_function_features.second)); add_ie(sie);}
+  if (pfcp_ies.cp_function_features.first) {std::shared_ptr<pfcp_cp_function_features_ie> sie(new pfcp_cp_function_features_ie(pfcp_ies.cp_function_features.second)); add_ie(sie);}
+  if (pfcp_ies.user_plane_ip_resource_information.first) {std::shared_ptr<pfcp_user_plane_ip_resource_information_ie> sie(new pfcp_user_plane_ip_resource_information_ie(pfcp_ies.user_plane_ip_resource_information.second)); add_ie(sie);}
 }
 //------------------------------------------------------------------------------
 pfcp_msg::pfcp_msg(const pfcp_session_establishment_request& pfcp_ies) : pfcp_msg_header() {

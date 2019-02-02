@@ -45,8 +45,6 @@ public:
   spgwu_sx(spgwu_sx const&)    = delete;
   void operator=(spgwu_sx const&)     = delete;
 
-  void handle_receive(char* recv_buffer, const std::size_t bytes_transferred, boost::asio::ip::udp::endpoint& remote_endpoint);
-
   void handle_itti_msg (core::itti::itti_sxab_heartbeat_request& s) {};
   void handle_itti_msg (core::itti::itti_sxab_heartbeat_response& s) {};
   void handle_itti_msg (core::itti::itti_sxab_association_setup_request& s) {};
@@ -65,7 +63,7 @@ public:
 
   void send_sx_msg (core::itti::itti_sxab_heartbeat_request& s) {};
   void send_sx_msg (core::itti::itti_sxab_heartbeat_response& s) {};
-  void send_sx_msg (core::itti::itti_sxab_association_setup_request& s) {};
+  void send_sx_msg (core::itti::itti_sxab_association_setup_request& s);
   void send_sx_msg (core::itti::itti_sxab_association_setup_response& s) {};
   void send_sx_msg (core::itti::itti_sxab_association_update_request& s) {};
   void send_sx_msg (core::itti::itti_sxab_association_update_response& s) {};
@@ -78,6 +76,9 @@ public:
   void send_sx_msg (core::itti::itti_sxab_session_modification_response& s) {};
   void send_sx_msg (core::itti::itti_sxab_session_deletion_response& s) {};
   void send_sx_msg (core::itti::itti_sxab_session_report_request& s) {};
+
+  void handle_receive_pfcp_msg( proto::pfcp::pfcp_msg& msg, const boost::asio::ip::udp::endpoint& remote_endpoint);
+  void handle_receive(char* recv_buffer, const std::size_t bytes_transferred, boost::asio::ip::udp::endpoint& remote_endpoint);
 
   void time_out_itti_event(const uint32_t timer_id);
 };

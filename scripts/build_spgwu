@@ -150,7 +150,7 @@ function main()
   cd $OPENAIRCN_DIR/build/spgw_u
   if [ $clean -ne 0 ]; then
     if [[ $verbose -eq 1 ]]; then
-      echo "Cleaning S/P-GW: generated configuration files, obj files, spgwu executable"
+      echo "Cleaning S/P-GW-U: generated configuration files, obj files, executable"
     fi
     rm -Rf $OPENAIRCN_DIR/build/spgw_u/build  2>&1
     mkdir -m 777 -p -v build
@@ -168,12 +168,12 @@ function main()
   $CMAKE $cmake_args .. > /dev/null
   ret=$?;[[ $ret -ne 0 ]] && return $ret
 
-  compilations spgw_u spgw_u $OPENAIRCN_DIR/build/spgw_u/build/spgw_u $verbose
+  compilations spgw_u spgwu $OPENAIRCN_DIR/build/spgw_u/build/spgwu $verbose
   ret=$?;[[ $ret -ne 0 ]] && return $ret
 
   # For daemon should not be group writable
-  $SUDO chmod 755 $OPENAIRCN_DIR/build/spgw_u/build/spgw_u
-  $SUDO cp -upv $OPENAIRCN_DIR/build/spgw_u/build/spgw_u /usr/local/bin && $SUDO chmod 755 /usr/local/bin/spgw_u && echo_success "spgw_u installed"
+  $SUDO chmod 755 $OPENAIRCN_DIR/build/spgw_u/build/spgwu
+  $SUDO cp -upv $OPENAIRCN_DIR/build/spgw_u/build/spgwu /usr/local/bin && $SUDO chmod 755 /usr/local/bin/spgwu && echo_success "spgwu installed"
   return 0
 }
 

@@ -25,7 +25,7 @@
   \company Eurecom
   \email: lionel.gauthier@eurecom.fr
 */
-#include "conversions.h"
+#include "conversions.hpp"
 #include "itti.hpp"
 #include "logger.hpp"
 #include "spgwu_app.hpp"
@@ -61,48 +61,6 @@ void spgwu_app_task (void *args_p)
     auto *msg = shared_msg.get();
     switch (msg->msg_type) {
 
-    case S11_CREATE_SESSION_REQUEST:
-        /*
-         * We received a create session request from MME (with GTP abstraction here)
-         * procedures might be:
-         * E-UTRAN Initial Attach
-         * UE requests PDN connectivity
-         */
-      if (itti_s11_create_session_request* m = dynamic_cast<itti_s11_create_session_request*>(msg)) {
-        spgwu_app_inst->handle_itti_msg(ref(*m));
-      }
-      break;
-
-    case S5S8_CREATE_SESSION_RESPONSE:
-      if (itti_s5s8_create_session_response* m = dynamic_cast<itti_s5s8_create_session_response*>(msg)) {
-        spgwu_app_inst->handle_itti_msg(ref(*m));
-      }
-      break;
-
-    case S11_DELETE_SESSION_REQUEST:
-      if (itti_s11_delete_session_request* m = dynamic_cast<itti_s11_delete_session_request*>(msg)) {
-        spgwu_app_inst->handle_itti_msg(ref(*m));
-      }
-      break;
-
-    case S5S8_DELETE_SESSION_RESPONSE:
-      if (itti_s5s8_delete_session_response* m = dynamic_cast<itti_s5s8_delete_session_response*>(msg)) {
-        spgwu_app_inst->handle_itti_msg(ref(*m));
-      }
-      break;
-
-    case S11_MODIFY_BEARER_REQUEST:
-      if (itti_s11_modify_bearer_request* m = dynamic_cast<itti_s11_modify_bearer_request*>(msg)) {
-        spgwu_app_inst->handle_itti_msg(ref(*m));
-      }
-      break;
-
-    case S11_RELEASE_ACCESS_BEARERS_REQUEST:
-      if (itti_s11_release_access_bearers_request* m = dynamic_cast<itti_s11_release_access_bearers_request*>(msg)) {
-        spgwu_app_inst->handle_itti_msg(ref(*m));
-      }
-      break;
-
     case TIME_OUT:
       if (itti_msg_timeout* to = dynamic_cast<itti_msg_timeout*>(msg)) {
         Logger::spgwu_app().info( "TIME-OUT event timer id %d", to->timer_id);
@@ -121,7 +79,7 @@ void spgwu_app_task (void *args_p)
 }
 
 //------------------------------------------------------------------------------
-spgwu_app::spgwu_app (const std::string& config_file) : s11lteid2sgwu_eps_bearer_context()
+spgwu_app::spgwu_app (const std::string& config_file)
 {
   Logger::spgwu_app().startup("Starting...");
   spgwu_cfg.load(config_file);
@@ -136,17 +94,18 @@ spgwu_app::spgwu_app (const std::string& config_file) : s11lteid2sgwu_eps_bearer
 //  s5s8lteid2sgwu_contexts = {};
 //  s5s8uplteid = {};
 
-  try {
-    spgwu_sx_inst = new spgwu_sx();
-  } catch (std::exception& e) {
-    Logger::spgwu_app().error( "Cannot create SGW_APP: %s", e.what() );
-    throw e;
-  }
-
   if (itti_inst->create_task(TASK_SPGWU_APP, spgwu_app_task, nullptr) ) {
     Logger::spgwu_app().error( "Cannot create task TASK_SPGWU_APP" );
     throw std::runtime_error( "Cannot create task TASK_SPGWU_APP" );
   }
+
+  try {
+    spgwu_sx_inst = new spgwu_sx();
+  } catch (std::exception& e) {
+    Logger::spgwu_app().error( "Cannot create SPGWU_SX: %s", e.what() );
+    throw e;
+  }
+
   Logger::spgwu_app().startup( "Started" );
 }
 

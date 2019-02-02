@@ -166,7 +166,7 @@ void spgwu_sx_task (void *args_p)
 }
 
 //------------------------------------------------------------------------------
-spgwu_sx::spgwu_sx ()
+spgwu_sx::spgwu_sx () : pfcp_l4_stack(std::string(inet_ntoa(spgwu_cfg.sx.addr4)), spgwu_cfg.sx.port)
 {
   Logger::spgwu_sx().startup("Starting...");
   if (itti_inst->create_task(TASK_SPGWU_SX, spgwu_sx_task, nullptr) ) {
@@ -175,4 +175,87 @@ spgwu_sx::spgwu_sx ()
   }
   Logger::spgwu_sx().startup( "Started" );
 }
+//------------------------------------------------------------------------------
+void spgwu_sx::handle_receive_pfcp_msg(pfcp_msg& msg, const boost::asio::ip::udp::endpoint& remote_endpoint)
+{
+  Logger::spgwu_sx().trace( "handle_receive_pfcp_msg msg type %d length %d", msg.get_message_type(), msg.get_message_length());
+  switch (msg.get_message_type()) {
+
+  case PFCP_HEARTBEAT_REQUEST:
+    //handle_receive_create_session_request(msg, remote_endpoint);
+    break;
+  case PFCP_HEARTBEAT_RESPONSE:
+    break;
+  case PFCP_PFCP_PFD_MANAGEMENT_REQUEST:
+  case PFCP_PFCP_PFD_MANAGEMENT_RESPONSE:
+  case PFCP_ASSOCIATION_SETUP_REQUEST:
+  case PFCP_ASSOCIATION_SETUP_RESPONSE:
+  case PFCP_ASSOCIATION_UPDATE_REQUEST:
+  case PFCP_ASSOCIATION_UPDATE_RESPONSE:
+  case PFCP_ASSOCIATION_RELEASE_REQUEST:
+  case PFCP_ASSOCIATION_RELEASE_RESPONSE:
+  case PFCP_VERSION_NOT_SUPPORTED_RESPONSE:
+  case PFCP_NODE_REPORT_REQUEST:
+  case PFCP_NODE_REPORT_RESPONSE:
+  case PFCP_SESSION_SET_DELETION_REQUEST:
+  case PFCP_SESSION_SET_DELETION_RESPONSE:
+  case PFCP_SESSION_ESTABLISHMENT_REQUEST:
+  case PFCP_SESSION_ESTABLISHMENT_RESPONSE:
+  case PFCP_SESSION_MODIFICATION_REQUEST:
+  case PFCP_SESSION_MODIFICATION_RESPONSE:
+  case PFCP_SESSION_DELETION_REQUEST:
+  case PFCP_SESSION_DELETION_RESPONSE:
+  case PFCP_SESSION_REPORT_REQUEST:
+  case PFCP_SESSION_REPORT_RESPONSE:
+    Logger::spgwu_sx().info( "handle_receive_pfcp_msg msg %d length %d, not handled, discarded!", msg.get_message_type(), msg.get_message_length());
+    break;
+  default:
+    Logger::spgwu_sx().info( "handle_receive_pfcp_msg msg %d length %d, unknown, discarded!", msg.get_message_type(), msg.get_message_length());
+  }
+}
+
+////------------------------------------------------------------------------------
+//// used only if ITTI messaging is used between SGW and PGW
+//void pgwc_sxab::handle_itti_msg (itti_s5s8_create_session_response& csreq)
+//{
+//  itti_s5s8_create_session_response csr(csreq, TASK_SGWC_S5S8, TASK_SGWC_APP);
+//
+//  std::shared_ptr<itti_s5s8_create_session_response> msg = std::make_shared<itti_s5s8_create_session_response>(csr);
+//  int ret = itti_inst->send_msg(msg);
+//  if (RETURNok != ret) {
+//    Logger::pgwc_s5s8().error( "Could not send ITTI message %s to task TASK_SGWC_APP", csr.get_msg_name());
+//  }
+//}
+//------------------------------------------------------------------------------
+void spgwu_sx::send_sx_msg(itti_sxab_association_setup_request& i)
+{
+  send_request(i.r_endpoint, i.seid, i.pfcp_ies, TASK_SPGWU_SX, i.trxn_id);
+}
+//------------------------------------------------------------------------------
+void spgwu_sx::handle_receive(char* recv_buffer, const std::size_t bytes_transferred, boost::asio::ip::udp::endpoint& remote_endpoint)
+{
+  Logger::spgwu_sx().info( "handle_receive(%d bytes)", bytes_transferred);
+  //std::cout << string_to_hex(recv_buffer, bytes_transferred) << std::endl;
+  std::istringstream iss(std::istringstream::binary);
+  iss.rdbuf()->pubsetbuf(recv_buffer,bytes_transferred);
+  pfcp_msg msg = {};
+  msg.remote_port = remote_endpoint.port();
+  try {
+    msg.load_from(iss);
+    handle_receive_pfcp_msg(msg, remote_endpoint);
+  } catch (pfcp_exception& e) {
+    Logger::spgwu_sx().info( "handle_receive exception %s", e.what());
+  }
+}
+//------------------------------------------------------------------------------
+void spgwu_sx::time_out_itti_event(const uint32_t timer_id)
+{
+  bool handled = false;
+  time_out_event(timer_id, TASK_SPGWU_SX, handled);
+  if (!handled) {
+    Logger::spgwu_sx().error( "Timer %d not Found", timer_id);
+  }
+}
+
+
 

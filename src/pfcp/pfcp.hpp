@@ -179,7 +179,7 @@ public:
   void handle_receive_message_cb(const pfcp_msg& msg, const boost::asio::ip::udp::endpoint& remote_endpoint, const core::itti::task_id_t& task_id, bool& error, uint64_t& trxn_id);
 
 //  virtual uint32_t send_request(const boost::asio::ip::udp::endpoint& dest, const uint64_t seid, const pfcp_pfd_management_request& pfcp_ies, const core::itti::task_id_t& task_id, const uint64_t trxn_id);
-//  virtual uint32_t send_request(const boost::asio::ip::udp::endpoint& dest, const uint64_t seid, const pfcp_association_setup_request& pfcp_ies, const core::itti::task_id_t& task_id, const uint64_t trxn_id);
+  virtual uint32_t send_request(const boost::asio::ip::udp::endpoint& dest, const uint64_t seid, const pfcp_association_setup_request& pfcp_ies, const core::itti::task_id_t& task_id, const uint64_t trxn_id);
 //  virtual uint32_t send_request(const boost::asio::ip::udp::endpoint& dest, const uint64_t seid, const pfcp_association_update_request& pfcp_ies, const core::itti::task_id_t& task_id, const uint64_t trxn_id);
 //  virtual uint32_t send_request(const boost::asio::ip::udp::endpoint& dest, const uint64_t seid, const pfcp_association_release_request& pfcp_ies, const core::itti::task_id_t& task_id, const uint64_t trxn_id);
 //  virtual uint32_t send_request(const boost::asio::ip::udp::endpoint& dest, const uint64_t seid, const pfcp_node_report_request& pfcp_ies, const core::itti::task_id_t& task_id, const uint64_t trxn_id);
@@ -188,7 +188,7 @@ public:
 //  virtual uint32_t send_request(const boost::asio::ip::udp::endpoint& dest, const uint64_t seid, const pfcp_session_deletion_request& pfcp_ies, const core::itti::task_id_t& task_id, const uint64_t trxn_id);
 //  virtual uint32_t send_request(const boost::asio::ip::udp::endpoint& dest, const uint64_t seid, const pfcp_session_report_request& pfcp_ies, const core::itti::task_id_t& task_id, const uint64_t trxn_id);
 
-  //virtual void send_response(const boost::asio::ip::udp::endpoint& dest, const uint64_t seid, const pfcp_pfd_management_response& gtp_ies, const uint64_t trxn_id, const pfcp_transaction_action& a = DELETE_TX);
+  //virtual void send_response(const boost::asio::ip::udp::endpoint& dest, const uint64_t seid, const pfcp_session_establishment_response& gtp_ies, const uint64_t trxn_id, const pfcp_transaction_action& a = DELETE_TX);
 
   void time_out_event(const uint32_t timer_id, const core::itti::task_id_t& task_id, bool &error);
 };

@@ -287,32 +287,32 @@ void pfcp_l4_stack::handle_receive_message_cb(const pfcp_msg& msg, const boost::
 //  udp_s.async_send_to(sm, dest);
 //  return msg.get_sequence_number();
 //}
-////------------------------------------------------------------------------------
-//uint32_t pfcp_l4_stack::send_request(const boost::asio::ip::udp::endpoint& dest, const uint64_t seid, const pfcp_association_setup_request& pfcp_ies, const task_id_t& task_id, const uint64_t trxn_id)
-//{
-//  std::ostringstream oss(std::ostringstream::binary);
-//  pfcp_msg msg(pfcp_ies);
-//  msg.set_seid(seid);
-//  msg.set_sequence_number(get_next_seq_num());
-//  msg.dump_to(oss);
-//  //std::cout << string_to_hex(oss.str()) << std::endl;
-//  //std::cout << std::hex << "msg length 0x" << msg.get_message_length() << "msg seqnum 0x" << msg.get_sequence_number() << std::endl;
-//  boost::shared_ptr<std::string> sm = boost::shared_ptr<std::string>(new std::string(oss.str()));
-//
-//  Logger::pfcp().trace( "Sending %s, seq %d", pfcp_ies.get_msg_name(), msg.get_sequence_number());
-//  pfcp_procedure proc = {};
-//  proc.initial_msg_type = msg.get_message_type();
-//  proc.trxn_id = trxn_id;
-//  proc.retry_msg = std::make_shared<pfcp_msg>(msg);
-//  proc.remote_endpoint = dest;
-//  start_msg_retry_timer(proc, PFCP_T1_RESPONSE_MS, task_id, msg.get_sequence_number());
-//  start_proc_cleanup_timer(proc, PFCP_PROC_TIME_OUT_MS, task_id, msg.get_sequence_number());
-//  pending_procedures.insert(std::pair<uint32_t, pfcp_procedure>(msg.get_sequence_number(), proc));
-//  trxn_id2seq_num.insert(std::pair<uint64_t, uint32_t>(proc.trxn_id, msg.get_sequence_number()));
-//
-//  udp_s.async_send_to(sm, dest);
-//  return msg.get_sequence_number();
-//}
+//------------------------------------------------------------------------------
+uint32_t pfcp_l4_stack::send_request(const boost::asio::ip::udp::endpoint& dest, const uint64_t seid, const pfcp_association_setup_request& pfcp_ies, const task_id_t& task_id, const uint64_t trxn_id)
+{
+  std::ostringstream oss(std::ostringstream::binary);
+  pfcp_msg msg(pfcp_ies);
+  msg.set_seid(seid);
+  msg.set_sequence_number(get_next_seq_num());
+  msg.dump_to(oss);
+  //std::cout << string_to_hex(oss.str()) << std::endl;
+  //std::cout << std::hex << "msg length 0x" << msg.get_message_length() << "msg seqnum 0x" << msg.get_sequence_number() << std::endl;
+  boost::shared_ptr<std::string> sm = boost::shared_ptr<std::string>(new std::string(oss.str()));
+
+  Logger::pfcp().trace( "Sending %s, seq %d", pfcp_ies.get_msg_name(), msg.get_sequence_number());
+  pfcp_procedure proc = {};
+  proc.initial_msg_type = msg.get_message_type();
+  proc.trxn_id = trxn_id;
+  proc.retry_msg = std::make_shared<pfcp_msg>(msg);
+  proc.remote_endpoint = dest;
+  start_msg_retry_timer(proc, PFCP_T1_RESPONSE_MS, task_id, msg.get_sequence_number());
+  start_proc_cleanup_timer(proc, PFCP_PROC_TIME_OUT_MS, task_id, msg.get_sequence_number());
+  pending_procedures.insert(std::pair<uint32_t, pfcp_procedure>(msg.get_sequence_number(), proc));
+  trxn_id2seq_num.insert(std::pair<uint64_t, uint32_t>(proc.trxn_id, msg.get_sequence_number()));
+
+  udp_s.async_send_to(sm, dest);
+  return msg.get_sequence_number();
+}
 ////------------------------------------------------------------------------------
 //uint32_t pfcp_l4_stack::send_request(const boost::asio::ip::udp::endpoint& dest, const uint64_t seid, const pfcp_association_update_request& pfcp_ies, const task_id_t& task_id, const uint64_t trxn_id)
 //{

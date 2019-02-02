@@ -1095,7 +1095,7 @@ namespace oai::cn::core::pfcp {
     uint8_t         spare:1;
     uint8_t         assosi:1;
     uint8_t         assoni:1;
-    uint8_t         teidri:1;
+    uint8_t         teidri:3;
     uint8_t         v6:1;
     uint8_t         v4:1;
     uint8_t         teid_range;
