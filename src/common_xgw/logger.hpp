@@ -78,24 +78,24 @@ public:
    static void init( const std::string &app ) { init( app.c_str() ); }
 
    static _Logger &async_cmd() { return *singleton().m_async_cmd; }
-   static _Logger &gtpv1_u() { return *singleton().m_gtpv1_u; }
+   //static _Logger &gtpv1_u() { return *singleton().m_gtpv1_u; }
    static _Logger &gtpv2_c() { return *singleton().m_gtpv2_c; }
-   static _Logger &gx() { return *singleton().m_gx; }
+   //static _Logger &gx() { return *singleton().m_gx; }
    static _Logger &itti() { return *singleton().m_itti; }
    static _Logger &mme_s11() { return *singleton().m_mme_s11; }
    static _Logger &pgwc_app() { return *singleton().m_pgwc_app; }
-   static _Logger &pgwu_app() { return *singleton().m_pgwu_app; }
+   //static _Logger &pgwu_app() { return *singleton().m_pgwu_app; }
    static _Logger &pgwc_s5s8() { return *singleton().m_pgwc_s5s8; }
    static _Logger &pgwc_sx() { return *singleton().m_pgwc_sx; }
-   static _Logger &pgwu_sx() { return *singleton().m_pgwu_sx; }
-   static _Logger &pgw_udp() { return *singleton().m_pgw_udp; }
+   //static _Logger &pgwu_sx() { return *singleton().m_pgwu_sx; }
+   //static _Logger &pgw_udp() { return *singleton().m_pgw_udp; }
    static _Logger &sgwc_app() { return *singleton().m_sgwc_app; }
-   static _Logger &sgwu_app() { return *singleton().m_sgwu_app; }
-   static _Logger &sgwu_sx() { return *singleton().m_sgwu_sx; }
+   //static _Logger &sgwu_app() { return *singleton().m_sgwu_app; }
+   //static _Logger &sgwu_sx() { return *singleton().m_sgwu_sx; }
    static _Logger &sgwc_s11() { return *singleton().m_sgwc_s11; }
    static _Logger &sgwc_s5s8() { return *singleton().m_sgwc_s5s8; }
    static _Logger &sgwc_sx() { return *singleton().m_sgwc_sx; }
-   static _Logger &sgw_udp() { return *singleton().m_sgw_udp; }
+   //static _Logger &sgw_udp() { return *singleton().m_sgw_udp; }
    static _Logger &spgwu_app() { return *singleton().m_spgwu_app; }
    static _Logger &spgwu_sx() { return *singleton().m_spgwu_sx; }
    static _Logger &system() { return *singleton().m_system; }
@@ -116,24 +116,24 @@ private:
    std::string m_pattern;
 
    _Logger *m_async_cmd;
-   _Logger *m_gtpv1_u;
+   //_Logger *m_gtpv1_u;
    _Logger *m_gtpv2_c;
-   _Logger *m_gx;
+   //_Logger *m_gx;
    _Logger *m_itti;
    _Logger *m_mme_s11;
    _Logger *m_pgwc_app;
-   _Logger *m_pgwu_app;
+   //_Logger *m_pgwu_app;
    _Logger *m_pgwc_s5s8;
    _Logger *m_pgwc_sx;
-   _Logger *m_pgwu_sx;
-   _Logger *m_pgw_udp;
+   //_Logger *m_pgwu_sx;
+   //_Logger *m_pgw_udp;
    _Logger *m_sgwc_app;
    _Logger *m_sgwu_app;
-   _Logger *m_sgwu_sx;
+   //_Logger *m_sgwu_sx;
    _Logger *m_sgwc_s11;
    _Logger *m_sgwc_s5s8;
    _Logger *m_sgwc_sx;
-   _Logger *m_sgw_udp;
+   //_Logger *m_sgw_udp;
    _Logger *m_spgwu_app;
    _Logger *m_spgwu_sx;
    _Logger *m_system;

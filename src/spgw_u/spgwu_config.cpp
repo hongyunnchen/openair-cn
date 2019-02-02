@@ -150,7 +150,7 @@ void spgwu_config::display ()
 {
   Logger::spgwu_app().info("==== EURECOM %s v%s ====", PACKAGE_NAME, PACKAGE_VERSION);
   Logger::spgwu_app().info( "Configuration:");
-  Logger::spgwu_app().info( "- Instance ..............: %s", instance);
+  Logger::spgwu_app().info( "- Instance ..............: %d", instance);
   Logger::spgwu_app().info( "- PID dir ...............: %s", pid_dir.c_str());
   Logger::spgwu_app().info( "-S1u_S12_S4:");
   Logger::spgwu_app().info( "    iface ............: %s", s1_up.if_name.c_str());

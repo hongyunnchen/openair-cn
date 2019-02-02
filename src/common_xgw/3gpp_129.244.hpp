@@ -741,7 +741,6 @@ public:
       if (u1.bf.chid) {
         check_length += 1;
       }
-      check_length += 1;
     } else {
       check_length += 4;
       if (u1.bf.v4) check_length += 4;

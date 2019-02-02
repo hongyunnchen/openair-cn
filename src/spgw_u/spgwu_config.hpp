@@ -39,7 +39,7 @@
 namespace oai::cn::nf::spgwu {
 
 
-#define SPGWU_CONFIG_STRING_SPGWU_CONFIG                          "S/P-GW-U"
+#define SPGWU_CONFIG_STRING_SPGWU_CONFIG                          "SPGW-U"
 #define SPGWU_CONFIG_STRING_PID_DIRECTORY                         "PID_DIRECTORY"
 #define SPGWU_CONFIG_STRING_INSTANCE                              "INSTANCE"
 #define SPGWU_CONFIG_STRING_INTERFACES                            "INTERFACES"

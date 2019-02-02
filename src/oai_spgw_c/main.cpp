@@ -71,7 +71,7 @@ void my_app_signal_handler(int s){
 int main(int argc, char **argv)
 {
   // Logger
-  Logger::init( "spgw" );
+  Logger::init( "spgwc" );
 
   // Command line options
   if ( !Options::parse( argc, argv ) )
@@ -112,7 +112,7 @@ int main(int argc, char **argv)
 
 
   FILE *fp = NULL;
-  std::string filename = fmt::format("/tmp/spgw_{}.status", getpid());
+  std::string filename = fmt::format("/tmp/spgwc_{}.status", getpid());
   fp = fopen(filename.c_str(), "w+");
   fprintf(fp, "STARTED\n");
   fflush(fp);

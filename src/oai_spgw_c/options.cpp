@@ -30,7 +30,7 @@ std::string Options::m_libconfigcfg;
 void Options::help()
 {
    std::cout << std::endl
-             << "Usage:  c3pohss -j path  [OPTIONS]..." << std::endl
+             << "Usage:  spgwc  [OPTIONS]..." << std::endl
              << "  -h, --help                   Print help and exit" << std::endl
              << "  -c, --libconfigcfg filename  Read the application configuration from this file." << std::endl
              ;

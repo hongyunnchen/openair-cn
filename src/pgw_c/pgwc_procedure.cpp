@@ -51,7 +51,8 @@ int session_establishment_procedure::run(std::shared_ptr<oai::cn::core::itti::it
   itti_sxab_session_establishment_request *sx_ser = new itti_sxab_session_establishment_request(TASK_PGWC_APP, TASK_PGWC_SX);
   sx_ser->seid = ppc.get()->seid;
   sx_ser->trxn_id = this->trxn_id;
-  sx_ser->r_endpoint = boost::asio::ip::udp::endpoint(boost::asio::ip::address_v4(0xC0A8A064), 8085);
+  sx_ser->l_endpoint = boost::asio::ip::udp::endpoint(boost::asio::ip::address_v4(0xC0A8A064), 8805);
+  sx_ser->r_endpoint = boost::asio::ip::udp::endpoint(boost::asio::ip::address_v4(0xC0A8A065), 8805);
   sx_triggered = std::shared_ptr<core::itti::itti_sxab_session_establishment_request>(sx_ser);
 
   //-------------------
