@@ -42,13 +42,13 @@ public:
     l_endpoint = {};
     r_endpoint = {};
     seid = UNASSIGNED_SEID;
-    pfcp_tx_id = 0;
+    trxn_id = 0;
   }
   itti_sxa_msg(const itti_sxa_msg& i) : itti_msg(i)  {
     l_endpoint = i.l_endpoint;
     r_endpoint = i.r_endpoint;
     seid = i.seid;
-    pfcp_tx_id = i.pfcp_tx_id;
+    trxn_id = i.trxn_id;
   }
   itti_sxa_msg(const itti_sxa_msg& i, const task_id_t orig, const task_id_t dest) : itti_sxa_msg(i)  {
     origin = orig;
@@ -58,7 +58,7 @@ public:
   boost::asio::ip::udp::endpoint l_endpoint;
   boost::asio::ip::udp::endpoint r_endpoint;
   seid_t                         seid;
-  uint64_t                       pfcp_tx_id;
+  uint64_t                       trxn_id;
 };
 
 //-----------------------------------------------------------------------------

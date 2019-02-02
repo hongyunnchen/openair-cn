@@ -166,6 +166,9 @@ int pgw_config::load(const string& config_file)
     const Setting& s5s8_cp_cfg = nw_if_cfg[PGW_CONFIG_STRING_INTERFACE_S5_S8_CP];
     load_interface(s5s8_cp_cfg, s5s8_cp);
 
+    const Setting& sx_cfg = nw_if_cfg[PGW_CONFIG_STRING_INTERFACE_SX];
+    load_interface(sx_cfg, sx);
+
 #if ENABLE_LIBGTPNL
     nw_if_cfg.lookupValue(PGW_CONFIG_STRING_PGW_MASQUERADE_SGI, astring);
     if (boost::iequals(astring, "yes"))
@@ -435,16 +438,11 @@ void pgw_config::display ()
   if (s5s8_cp.mtu) {
     Logger::pgwc_app().info( "    MTU ..............: %u", s5s8_cp.mtu);
   }
-//  Logger::pgwc_app().info( "- S5S8-U:");
-//  Logger::pgwc_app().info( "    iface ................: %s", s5s8_up.if_name.c_str());
-//  Logger::pgwc_app().info( "    ip ...................: %s", inet_ntoa (s5s8_up.addr4)));
-//  Logger::pgwc_app().info( "    port .................: %d", s5s8_up.port);
-  if (use_gtp_kernel_module) {
-    Logger::pgwc_app().info( "- GTPU ...................: Enabled (Linux kernel module)");
-    Logger::pgwc_app().info( "    Load/unload module....: %s", (enable_loading_gtp_kernel_module) ? "enabled" : "disabled");
-  } else {
-    Logger::pgwc_app().info( "- GTPU ...................: Disabled");
-  }
+  Logger::pgwc_app().info( "- SX:");
+  Logger::pgwc_app().info( "    iface ................: %s", sx.if_name.c_str());
+  Logger::pgwc_app().info( "    ip ...................: %s", inet_ntoa (sx.addr4));
+  Logger::pgwc_app().info( "    port .................: %d", sx.port);
+
   Logger::pgwc_app().info( "- " PGW_CONFIG_STRING_IP_ADDRESS_POOL ":");
   for (int i = 0; i < num_ue_pool; i++) {
     Logger::pgwc_app().info( "    IPv4 pool %d ..........: %s - %s", i, inet_ntoa (*((struct in_addr *)&ue_pool_range_low[i])), inet_ntoa (*((struct in_addr *)&ue_pool_range_high[i])));
@@ -510,6 +508,40 @@ int pgw_config::get_pa_pool_id(const std::string& apn, int& pool_id_ipv4, int& p
     }
   }
   return RETURNerror;
+}
+
+//------------------------------------------------------------------------------
+int pgw_config::get_pfcp_node_id(oai::cn::core::pfcp::node_id_t& node_id)
+{
+  node_id = {};
+  if (sx.addr4.s_addr) {
+    node_id.node_id_type = oai::cn::core::pfcp::NODE_ID_TYPE_IPV4_ADDRESS;
+    node_id.u1.ipv4_address = sx.addr4;
+    return RETURNok;
+  }
+  if (sx.addr6.s6_addr32[0] | sx.addr6.s6_addr32[1] | sx.addr6.s6_addr32[2] | sx.addr6.s6_addr32[3]) {
+    node_id.node_id_type = oai::cn::core::pfcp::NODE_ID_TYPE_IPV6_ADDRESS;
+    node_id.u1.ipv6_address = sx.addr6;
+    return RETURNok;
+  }
+  return RETURNerror;
+}
+//------------------------------------------------------------------------------
+int pgw_config::get_pfcp_fseid(oai::cn::core::pfcp::fseid_t& fseid)
+{
+  int rc = RETURNerror;
+  fseid = {};
+  if (sx.addr4.s_addr) {
+    fseid.v4 = 1;
+    fseid.ipv4_address = sx.addr4;
+    rc = RETURNok;
+  }
+  if (sx.addr6.s6_addr32[0] | sx.addr6.s6_addr32[1] | sx.addr6.s6_addr32[2] | sx.addr6.s6_addr32[3]) {
+    fseid.v6 = 1;
+    fseid.ipv6_address = sx.addr6;
+    rc = RETURNok;
+  }
+  return rc;
 }
 
 //------------------------------------------------------------------------------

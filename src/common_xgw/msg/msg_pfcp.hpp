@@ -33,6 +33,8 @@
 #include "3gpp_129.244.h"
 #include "common_defs.h"
 
+#include <vector>
+
 // Only Grouped IEs of this namespace
 namespace oai::cn::core::pfcp {
   class create_pdr;
@@ -91,12 +93,14 @@ public:
 //  PFCP_IE_CREATE_PDR
   virtual bool get(core::pfcp::create_pdr& v) const {throw pfcp_msg_illegal_ie_exception(0, PFCP_IE_CREATE_PDR);}
   virtual void set(const core::pfcp::create_pdr& v) {throw pfcp_msg_illegal_ie_exception(0, PFCP_IE_CREATE_PDR);}
+  virtual void add(const core::pfcp::create_pdr& v) {throw pfcp_msg_illegal_ie_exception(0, PFCP_IE_CREATE_PDR);}
   // PFCP_IE_PDI
   virtual bool get(core::pfcp::pdi& v) const {throw pfcp_msg_illegal_ie_exception(0, PFCP_IE_PDI);}
   virtual void set(const core::pfcp::pdi& v) {throw pfcp_msg_illegal_ie_exception(0, PFCP_IE_PDI);}
   //  PFCP_IE_CREATE_FAR
   virtual bool get(core::pfcp::create_far& v) const {throw pfcp_msg_illegal_ie_exception(0, PFCP_IE_CREATE_FAR);}
   virtual void set(const core::pfcp::create_far& v) {throw pfcp_msg_illegal_ie_exception(0, PFCP_IE_CREATE_FAR);}
+  virtual void add(const core::pfcp::create_far& v) {throw pfcp_msg_illegal_ie_exception(0, PFCP_IE_CREATE_FAR);}
   //  PFCP_IE_FORWARDING_PARAMETERS
   virtual bool get(core::pfcp::forwarding_parameters& v) const {throw pfcp_msg_illegal_ie_exception(0, PFCP_IE_FORWARDING_PARAMETERS);}
   virtual void set(const core::pfcp::forwarding_parameters& v) {throw pfcp_msg_illegal_ie_exception(0, PFCP_IE_FORWARDING_PARAMETERS);}
@@ -106,9 +110,11 @@ public:
   //  PFCP_IE_CREATE_URR
   virtual bool get(core::pfcp::create_urr& v) const {throw pfcp_msg_illegal_ie_exception(0, PFCP_IE_CREATE_URR);}
   virtual void set(const core::pfcp::create_urr& v) {throw pfcp_msg_illegal_ie_exception(0, PFCP_IE_CREATE_URR);}
+  virtual void add(const core::pfcp::create_urr& v) {throw pfcp_msg_illegal_ie_exception(0, PFCP_IE_CREATE_URR);}
   //  PFCP_IE_CREATE_QER
   virtual bool get(core::pfcp::create_qer& v) const {throw pfcp_msg_illegal_ie_exception(0, PFCP_IE_CREATE_QER);}
   virtual void set(const core::pfcp::create_qer& v) {throw pfcp_msg_illegal_ie_exception(0, PFCP_IE_CREATE_QER);}
+  virtual void add(const core::pfcp::create_qer& v) {throw pfcp_msg_illegal_ie_exception(0, PFCP_IE_CREATE_QER);}
   //  PFCP_IE_CREATED_PDR
   virtual bool get(core::pfcp::created_pdr& v) const {throw pfcp_msg_illegal_ie_exception(0, PFCP_IE_CREATED_PDR);}
   virtual void set(const core::pfcp::created_pdr& v) {throw pfcp_msg_illegal_ie_exception(0, PFCP_IE_CREATED_PDR);}
@@ -761,20 +767,22 @@ namespace oai::cn::core::pfcp {
   //------------------------------------------------------------------------------
   // Table 7.5.2.2-1: Create PDR IE within PFCP Session Establishment Request
   class create_pdr : public proto::pfcp::pfcp_ies_container {
-      std::pair<bool, core::pfcp::pdr_id_t>                    prd_id;
-      std::pair<bool, core::pfcp::precedence_t>                    precedence;
-      std::pair<bool, core::pfcp::pdi>                    pdi;
+      std::pair<bool, core::pfcp::pdr_id_t>                    pdr_id;
+      std::pair<bool, core::pfcp::precedence_t>                precedence;
+      std::pair<bool, core::pfcp::pdi>                         pdi;
+      std::pair<bool, core::pfcp::outer_header_removal_t>      outer_header_removal;
       std::pair<bool, core::pfcp::far_id_t>                    far_id;
       std::pair<bool, core::pfcp::urr_id_t>                    urr_id;
       std::pair<bool, core::pfcp::qer_id_t>                    qer_id;
-      std::pair<bool, core::pfcp::activate_predefined_rules_t>                    activate_predefined_rules;
+      std::pair<bool, core::pfcp::activate_predefined_rules_t> activate_predefined_rules;
 
   public:
 
       create_pdr() {
-        prd_id = {};
+        pdr_id = {};
         precedence = {};
         pdi = {};
+        outer_header_removal = {};
         far_id = {};
         urr_id = {};
         qer_id = {};
@@ -782,9 +790,10 @@ namespace oai::cn::core::pfcp {
       }
 
       create_pdr(const create_pdr& c) {
-        prd_id = c.prd_id;
+        pdr_id = c.pdr_id;
         precedence = c.precedence;
         pdi = c.pdi;
+        outer_header_removal = c.outer_header_removal;
         far_id = c.far_id;
         urr_id = c.urr_id;
         qer_id = c.qer_id;
@@ -792,17 +801,19 @@ namespace oai::cn::core::pfcp {
       }
 
       //virtual ~create_pdr() {};
-      void set(const core::pfcp::pdr_id_t& v) {prd_id.first = true; prd_id.second = v;}
+      void set(const core::pfcp::pdr_id_t& v) {pdr_id.first = true; pdr_id.second = v;}
       void set(const core::pfcp::precedence_t& v) {precedence.first = true; precedence.second = v;}
       void set(const core::pfcp::pdi& v) {pdi.first = true; pdi.second = v;}
+      void set(const core::pfcp::outer_header_removal_t& v) {outer_header_removal.first = true; outer_header_removal.second = v;}
       void set(const core::pfcp::far_id_t& v) {far_id.first = true; far_id.second = v;}
       void set(const core::pfcp::urr_id_t& v) {urr_id.first = true; urr_id.second = v;}
       void set(const core::pfcp::qer_id_t& v) {qer_id.first = true; qer_id.second = v;}
       void set(const core::pfcp::activate_predefined_rules_t& v) {activate_predefined_rules.first = true; activate_predefined_rules.second = v;}
 
-      bool get(core::pfcp::pdr_id_t& v) const {if (prd_id.first) {v = prd_id.second;return true;}return false;}
+      bool get(core::pfcp::pdr_id_t& v) const {if (pdr_id.first) {v = pdr_id.second;return true;}return false;}
       bool get(core::pfcp::precedence_t& v) const {if (precedence.first) {v = precedence.second;return true;}return false;}
       bool get(core::pfcp::pdi& v) const {if (pdi.first) {v = pdi.second;return true;}return false;}
+      bool get(core::pfcp::outer_header_removal_t& v) const {if (outer_header_removal.first) {v = outer_header_removal.second;return true;}return false;}
       bool get(core::pfcp::far_id_t& v) const {if (far_id.first) {v = far_id.second;return true;}return false;}
       bool get(core::pfcp::urr_id_t& v) const {if (urr_id.first) {v = urr_id.second;return true;}return false;}
       bool get(core::pfcp::qer_id_t& v) const {if (qer_id.first) {v = qer_id.second;return true;}return false;}
@@ -2933,31 +2944,31 @@ class pfcp_session_establishment_request : public pfcp_ies_container {
 public:
   static const uint8_t msg_id = PFCP_SESSION_ESTABLISHMENT_REQUEST;
 
-  std::pair<bool, core::pfcp::node_id_t>       node_id;
-  std::pair<bool, core::pfcp::fseid_t>         cp_fseid;
-  std::pair<bool, core::pfcp::create_pdr>    create_pdr;
-  std::pair<bool, core::pfcp::create_far>    create_far;
-  std::pair<bool, core::pfcp::create_urr>    create_urr;
-  std::pair<bool, core::pfcp::create_qer>    create_qer;
-  std::pair<bool, core::pfcp::create_bar>    create_bar;
+  std::pair<bool, core::pfcp::node_id_t>    node_id;
+  std::pair<bool, core::pfcp::fseid_t>      cp_fseid;
+  std::vector<core::pfcp::create_pdr>       create_pdrs;
+  std::vector<core::pfcp::create_far>       create_fars;
+  std::vector<core::pfcp::create_urr>       create_urrs;
+  std::vector<core::pfcp::create_qer>       create_qers;
+  std::pair<bool, core::pfcp::create_bar>   create_bar;
   std::pair<bool, core::pfcp::create_traffic_endpoint> create_traffic_endpoint;
-  std::pair<bool, core::pfcp::pdn_type_t>      pdn_type;
-  std::pair<bool, core::fq_csid_t>       sgw_c_fq_csid;
-  std::pair<bool, core::fq_csid_t>       mme_fq_csid;
-  std::pair<bool, core::fq_csid_t>       pgw_c_fq_csid;
-  std::pair<bool, core::fq_csid_t>       epdg_fq_csid;
-  std::pair<bool, core::fq_csid_t>       twan_fq_csid;
+  std::pair<bool, core::pfcp::pdn_type_t>   pdn_type;
+  std::pair<bool, core::fq_csid_t>          sgw_c_fq_csid;
+  std::pair<bool, core::fq_csid_t>          mme_fq_csid;
+  std::pair<bool, core::fq_csid_t>          pgw_c_fq_csid;
+  std::pair<bool, core::fq_csid_t>          epdg_fq_csid;
+  std::pair<bool, core::fq_csid_t>          twan_fq_csid;
   std::pair<bool, core::pfcp::user_plane_inactivity_timer_t> user_plane_inactivity_timer;
-  std::pair<bool, core::pfcp::user_id_t>       user_id;
+  std::pair<bool, core::pfcp::user_id_t>    user_id;
   std::pair<bool, core::pfcp::trace_information_t> trace_information;
 
   pfcp_session_establishment_request() {
     node_id = {};
     cp_fseid = {};
-    create_pdr = {};
-    create_far = {};
-    create_urr = {};
-    create_qer = {};
+    create_pdrs = {};
+    create_fars = {};
+    create_urrs = {};
+    create_qers = {};
     create_bar = {};
     create_traffic_endpoint = {};
     pdn_type = {};
@@ -2974,10 +2985,10 @@ public:
   pfcp_session_establishment_request(const pfcp_session_establishment_request& i) {
     node_id = i.node_id;
     cp_fseid = i.cp_fseid;
-    create_pdr = i.create_pdr;
-    create_far = i.create_far;
-    create_urr = i.create_urr;
-    create_qer = i.create_qer;
+    create_pdrs = i.create_pdrs;
+    create_fars = i.create_fars;
+    create_urrs = i.create_urrs;
+    create_qers = i.create_qers;
     create_bar = i.create_bar;
     create_traffic_endpoint = i.create_traffic_endpoint;
     pdn_type = i.pdn_type;
@@ -2994,6 +3005,7 @@ public:
 
   bool get(core::pfcp::node_id_t& v) const {if (node_id.first) {v = node_id.second;return true;}return false;}
   bool get(core::pfcp::fseid_t& v) const {if (cp_fseid.first) {v = cp_fseid.second;return true;}return false;}
+  bool get(core::pfcp::create_bar& v) const {if (create_bar.first) {v = create_bar.second;return true;}return false;}
   bool get_sgw_c_fq_csid(core::fq_csid_t& v) const {if (sgw_c_fq_csid.first) {v = sgw_c_fq_csid.second;return true;}return false;}
   bool get_mme_fq_csid(core::fq_csid_t& v) const {if (mme_fq_csid.first) {v = mme_fq_csid.second;return true;}return false;}
   bool get_pgw_c_fq_csid(core::fq_csid_t& v) const {if (pgw_c_fq_csid.first) {v = pgw_c_fq_csid.second;return true;}return false;}
@@ -3005,6 +3017,11 @@ public:
 
   void set(const core::pfcp::node_id_t& v) {node_id.first = true; node_id.second = v;}
   void set(const core::pfcp::fseid_t& v) {cp_fseid.first = true; cp_fseid.second = v;}
+  void add(const core::pfcp::create_pdr& v) {create_pdrs.push_back(v);}
+  void add(const core::pfcp::create_far& v) {create_fars.push_back(v);}
+  void add(const core::pfcp::create_urr& v) {create_urrs.push_back(v);}
+  void add(const core::pfcp::create_qer& v) {create_qers.push_back(v);}
+  void set(const core::pfcp::create_bar& v) {create_bar.first = true; create_bar.second = v;}
   void set_sgw_c_fq_csid(const core::fq_csid_t& v) {sgw_c_fq_csid.first = true; sgw_c_fq_csid.second = v;}
   void set_mme_fq_csid(const core::fq_csid_t& v) {mme_fq_csid.first = true; mme_fq_csid.second = v;}
   void set_pgw_c_fq_csid(const core::fq_csid_t& v) {pgw_c_fq_csid.first = true; pgw_c_fq_csid.second = v;}

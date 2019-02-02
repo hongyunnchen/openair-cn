@@ -66,9 +66,9 @@ private:
   teid_t generate_s5s8_cp_teid();
   void free_s5s8c_teid(const teid_t& teid_s5s8_cp);
   bool is_s5s8c_teid_exist(teid_t& teid_s5s8_cp);
-  teid_t generate_s5s8_up_teid();
-  void free_s5s8u_teid(const teid_t& teid_s5s8_up);
-  bool is_s5s8u_teid_exist(teid_t& teid_s5s8_up);
+  //teid_t generate_s5s8_up_teid();
+  //void free_s5s8u_teid(const teid_t& teid_s5s8_up);
+  //bool is_s5s8u_teid_exist(teid_t& teid_s5s8_up);
 
   // s5s8crteid2pgw_eps_bearer_context collection
   bool is_s5s8cpgw_fteid_2_pgw_context(core::fteid_t& ls5s8_fteid);
@@ -95,9 +95,9 @@ public:
   void free_s5s8_cp_fteid(const core::fteid_t& fteid);
   void set_s5s8cpgw_fteid_2_pgw_context(core::fteid_t& rs5s8_fteid, std::shared_ptr<pgw_context> spc);
   std::shared_ptr<pgw_context> s5s8cpgw_fteid_2_pgw_context(core::fteid_t& ls5s8_fteid);
-  core::fteid_t build_s5s8_up_fteid(const struct in_addr ipv4_address, const teid_t teid);
-  core::fteid_t generate_s5s8_up_fteid(const struct in_addr ipv4_address);
-  void free_s5s8_up_fteid(const core::fteid_t& fteid);
+  //core::fteid_t build_s5s8_up_fteid(const struct in_addr ipv4_address, const teid_t teid);
+  //core::fteid_t generate_s5s8_up_fteid(const struct in_addr ipv4_address);
+  //void free_s5s8_up_fteid(const core::fteid_t& fteid);
 
   void delete_pgw_context(std::shared_ptr<pgw_context> spc);
 
@@ -112,8 +112,7 @@ public:
     core::protocol_configuration_options_t& pco_resp,
     core::protocol_configuration_options_ids_t & pco_ids);
 
-
-  void handle_itti_msg (core::itti::itti_s5s8_create_session_request& m);
+  void handle_itti_msg (std::shared_ptr<core::itti::itti_s5s8_create_session_request> m);
   void handle_itti_msg (core::itti::itti_s5s8_delete_session_request& m);
   void handle_itti_msg (core::itti::itti_s5s8_modify_bearer_request& m);
 };

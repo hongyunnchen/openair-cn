@@ -19,18 +19,19 @@
  *      contact@openairinterface.org
  */
 
-/*! \file conversions.h
+/*! \file conversions.hpp
   \brief
   \author Sebastien ROUX, Lionel Gauthier
   \company Eurecom
   \email: lionel.gauthier@eurecom.fr
 */
 
-#ifndef FILE_CONVERSIONS_SEEN
-#define FILE_CONVERSIONS_SEEN
+#ifndef FILE_CONVERSIONS_HPP_SEEN
+#define FILE_CONVERSIONS_HPP_SEEN
 #include "3gpp_23.003.h"
 #include "3gpp_24.008.h"
 #include "3gpp_29.274.h"
+#include "3gpp_129.244.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -400,7 +401,6 @@ int ascii_to_hex(uint8_t *dst, const char *h);
     ((bYtE) & 0x02 ? '1':'0'),\
     ((bYtE) & 0x01 ? '1':'0')
 
-void copy_paa(oai::cn::core::paa_t *paa_dst, oai::cn::core::paa_t *paa_src);
 
 #define FTEID_T_2_IP_ADDRESS_T(fte_p,ip_p) \
 do { \
@@ -420,4 +420,6 @@ do { \
 }
 #endif
 
-#endif /* FILE_CONVERSIONS_SEEN */
+void paa_to_pfcp_ue_ip_address(const oai::cn::core::paa_t& paa, oai::cn::core::pfcp::ue_ip_address_t& ue_ip_address);
+
+#endif /* FILE_CONVERSIONS_HPP_SEEN */

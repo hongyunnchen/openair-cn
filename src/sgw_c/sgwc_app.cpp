@@ -25,7 +25,7 @@
   \company Eurecom
   \email: lionel.gauthier@eurecom.fr
 */
-#include "conversions.h"
+#include "conversions.hpp"
 #include "itti.hpp"
 #include "logger.hpp"
 #if SGW_AUTOTEST
@@ -35,7 +35,6 @@
 #include "sgwc_config.hpp"
 #include "sgwc_s5s8.hpp"
 #include "sgwc_s11.hpp"
-#include "sgwc_sxa.hpp"
 
 #include <stdexcept>
 
@@ -53,7 +52,6 @@ mme_s11   *mme_s11_inst = nullptr;
 #endif
 sgw_s11   *sgw_s11_inst = nullptr;
 sgw_s5s8  *sgw_s5s8_inst = nullptr;
-sgwc_sxa  *sgwc_sxa_inst = nullptr;
 
 extern itti_mw *itti_inst;
 extern sgwc_app *sgwc_app_inst;
@@ -269,7 +267,6 @@ sgwc_app::sgwc_app (const std::string& config_file) : s11lteid2sgw_eps_bearer_co
   s5s8uplteid = {};
 
   try {
-    sgwc_sxa_inst = new sgwc_sxa();
     sgw_s5s8_inst = new sgw_s5s8();
     sgw_s11_inst = new sgw_s11();
 #if SGW_AUTOTEST
@@ -291,7 +288,6 @@ sgwc_app::sgwc_app (const std::string& config_file) : s11lteid2sgw_eps_bearer_co
 sgwc_app::~sgwc_app()
 {
   if (sgw_s5s8_inst) delete sgw_s5s8_inst;
-  if (sgwc_sxa_inst) delete sgwc_sxa_inst;
   if (sgw_s11_inst) delete sgw_s11_inst;
 #if SGW_AUTOTEST
   if (mme_s11_inst) delete mme_s11_inst;

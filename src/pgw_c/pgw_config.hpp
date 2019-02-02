@@ -29,6 +29,7 @@
 #ifndef FILE_PGW_CONFIG_HPP_SEEN
 #define FILE_PGW_CONFIG_HPP_SEEN
 
+#include "3gpp_129.244.hpp"
 #include "3gpp_29.274.hpp"
 
 #include <arpa/inet.h>
@@ -51,7 +52,7 @@ namespace oai::cn::nf::pgwc {
 #define PGW_CONFIG_STRING_PORT                                  "PORT"
 #define PGW_CONFIG_STRING_INTERFACE_SGI                         "SGI"
 #define PGW_CONFIG_STRING_INTERFACE_S5_S8_CP                    "S5_S8_CP"
-#define PGW_CONFIG_STRING_INTERFACE_S5_S8_UP                    "S5_S8_UP"
+#define PGW_CONFIG_STRING_INTERFACE_SX                          "SX"
 
 #define PGW_CONFIG_STRING_PGW_MASQUERADE_SGI                    "PGW_MASQUERADE_SGI"
 #define PGW_CONFIG_STRING_UE_TCP_MSS_CLAMPING                   "UE_TCP_MSS_CLAMPING"
@@ -147,7 +148,7 @@ public:
 
   interface_cfg_t sgi;
   interface_cfg_t s5s8_cp;
-  interface_cfg_t s5s8_up;
+  interface_cfg_t sx;
 
   struct in_addr default_dnsv4;
   struct in_addr default_dns_secv4;
@@ -216,7 +217,6 @@ public:
 
     sgi = {};
     s5s8_cp = {};
-    s5s8_up = {};
 
     num_ue_pool = 0;
     num_paa6_pool = 0;
@@ -252,6 +252,8 @@ public:
   void display();
   bool is_apn_handled(const std::string& apn, const core::pdn_type_t& pdn_type);
   int get_pa_pool_id(const std::string& apn, int& pool_id_ipv4, int& pool_id_ipv6);
+  int get_pfcp_node_id(oai::cn::core::pfcp::node_id_t& node_id);
+  int get_pfcp_fseid(oai::cn::core::pfcp::fseid_t& fseid);
 };
 
 } // namespace pgw

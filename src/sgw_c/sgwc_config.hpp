@@ -49,8 +49,6 @@ namespace oai::cn::nf::sgwc {
 #define SGWC_CONFIG_STRING_INTERFACE_S11_UP                      "S11_UP"
 #define SGWC_CONFIG_STRING_INTERFACE_S1U_S12_S4_UP               "S1U_S12_S4_UP"
 #define SGWC_CONFIG_STRING_INTERFACE_S5_S8_CP                    "S5_S8_CP"
-#define SGWC_CONFIG_STRING_INTERFACE_S5_S8_UP                    "S5_S8_UP"
-#define SGWC_CONFIG_STRING_INTERFACE_SXA                         "SXA"
 
 #define SPGW_ABORT_ON_ERROR true
 #define SPGW_WARN_ON_ERROR false
@@ -80,7 +78,6 @@ public:
   interface_cfg_t s11_cp;
   interface_cfg_t s11_up;
   interface_cfg_t s5s8_cp;
-  interface_cfg_t s5s8_up;
   interface_cfg_t sxa;
   bool            local_to_eNB;
 
@@ -91,8 +88,6 @@ public:
     s11_cp = {};
     s11_up = {};
     s5s8_cp = {};
-    s5s8_up = {};
-    sxa = {};
     local_to_eNB = false;
   };
   void lock() {m_rw_lock.lock();};

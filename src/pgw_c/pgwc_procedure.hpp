@@ -28,6 +28,7 @@
   \email: lionel.gauthier@eurecom.fr
 */
 
+#include "itti_msg_s5s8.hpp"
 #include "itti_msg_sxab.hpp"
 #include "msg_pfcp.hpp"
 
@@ -41,21 +42,20 @@ class pgw_pdn_connection;
 
 class pgw_procedure {
 private:
-  static uint64_t              tx_id_generator;
+  static uint64_t              trxn_id_generator;
 
-  static uint64_t generate_tx_id() {
-    tx_id_generator += 1;
-    return tx_id_generator;
+  static uint64_t generate_trxn_id() {
+    trxn_id_generator += 1;
+    return trxn_id_generator;
   }
 
 public:
-  uint64_t              tx_id;
+  uint64_t              trxn_id;
 
-  pgw_procedure(){tx_id = generate_tx_id();}
-  pgw_procedure(uint64_t tx){tx_id = tx;}
+  pgw_procedure(){trxn_id = generate_trxn_id();}
+  pgw_procedure(uint64_t tx){trxn_id = tx;}
   virtual ~pgw_procedure(){}
   virtual core::itti::itti_msg_type_t get_procedure_type(){return core::itti::ITTI_MSG_TYPE_NONE;}
-  virtual int run(std::shared_ptr<pgw_pdn_connection> ppc) {return RETURNerror;}
   virtual void handle_itti_msg (core::itti::itti_sxab_session_establishment_response& resp, std::shared_ptr<apn_context> ebc, std::shared_ptr<pgw_pdn_connection> ppc) {}
 };
 
@@ -65,12 +65,20 @@ class sgw_pdn_connection;
 
 class session_establishment_procedure : public pgw_procedure {
 public:
-  session_establishment_procedure(core::itti::itti_sxab_session_establishment_request& msg) : pgw_procedure(msg.tx_id), msg(msg), ebc(nullptr) {}
-  int run(std::shared_ptr<pgw_pdn_connection> ppc);
+  session_establishment_procedure(std::shared_ptr<pgw_pdn_connection> sppc) : pgw_procedure(), ppc(sppc) {
+    sx_triggered = std::shared_ptr<core::itti::itti_sxab_session_establishment_request>(nullptr);
+    s5_triggered_pending = std::shared_ptr<core::itti::itti_s5s8_create_session_response>(nullptr);
+    s5_trigger = std::shared_ptr<core::itti::itti_s5s8_create_session_request>(nullptr);
+  }
+  int run(std::shared_ptr<core::itti::itti_s5s8_create_session_request> req, std::shared_ptr<core::itti::itti_s5s8_create_session_response> resp);
   void handle_itti_msg (core::itti::itti_sxab_session_establishment_response& resp, std::shared_ptr<apn_context> ebc, std::shared_ptr<pgw_pdn_connection> ppc) {}
 
-  core::itti::itti_sxab_session_establishment_request msg;
-  std::shared_ptr<pgw_pdn_connection> ppc;
+  ~session_establishment_procedure() {}
+
+  std::shared_ptr<core::itti::itti_s5s8_create_session_request>        s5_trigger;
+  std::shared_ptr<core::itti::itti_s5s8_create_session_response>       s5_triggered_pending;
+  std::shared_ptr<core::itti::itti_sxab_session_establishment_request> sx_triggered;
+  std::shared_ptr<pgw_pdn_connection>                                  ppc;
 };
 
 }

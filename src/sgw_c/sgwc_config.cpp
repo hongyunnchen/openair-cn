@@ -137,8 +137,6 @@ int sgwc_config::load(const string& config_file)
     const Setting& s5s8_cp_cfg = nw_if_cfg[SGWC_CONFIG_STRING_INTERFACE_S5_S8_CP];
     load_interface(s5s8_cp_cfg, s5s8_cp);
 
-    const Setting& sxa_cfg = nw_if_cfg[SGWC_CONFIG_STRING_INTERFACE_SXA];
-    load_interface(sxa_cfg, sxa);
   }
   catch(const SettingNotFoundException &nfex)
   {
@@ -171,10 +169,6 @@ void sgwc_config::display ()
   Logger::sgwc_app().info( "    ipv4.addr ........: %s", inet_ntoa (s11_cp.addr4));
   Logger::sgwc_app().info( "    ipv4.mask ........: %s", inet_ntoa (s11_cp.network4));
   Logger::sgwc_app().info( "    port .............: %u", s11_cp.port);
-  Logger::sgwc_app().info( "- SXA:");
-  Logger::sgwc_app().info( "    iface ............: %s", sxa.if_name.c_str());
-  Logger::sgwc_app().info( "    ipv4.addr ........: %s", inet_ntoa (sxa.addr4));
-  Logger::sgwc_app().info( "    ipv4.mask ........: %s", inet_ntoa (sxa.network4));
-  Logger::sgwc_app().info( "    port .............: %u", sxa.port);
+
 }
 

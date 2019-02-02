@@ -863,7 +863,7 @@ namespace oai::cn::core::pfcp {
   //-------------------------------------
   // 8.2.57 BAR ID
   typedef struct bar_id_s {
-    uint32_t  bar_id;
+    uint8_t  bar_id;
   } bar_id_t;
 
   //-------------------------------------
@@ -931,10 +931,10 @@ namespace oai::cn::core::pfcp {
 
   //-------------------------------------
   // 8.2.64 Outer Header Removal
-#define OUTER_HEADER_REMOVAL_GTPU_UDP_IPV4 1
-#define OUTER_HEADER_REMOVAL_GTPU_UDP_IPV6 2
-#define OUTER_HEADER_REMOVAL_UDP_IPV4      4
-#define OUTER_HEADER_REMOVAL_UDP_IPV6      8
+#define OUTER_HEADER_REMOVAL_GTPU_UDP_IPV4 0
+#define OUTER_HEADER_REMOVAL_GTPU_UDP_IPV6 1
+#define OUTER_HEADER_REMOVAL_UDP_IPV4      2
+#define OUTER_HEADER_REMOVAL_UDP_IPV6      3
   typedef struct outer_header_removal_s {
     uint8_t     outer_header_removal_description;
   } outer_header_removal_t;
@@ -1384,7 +1384,7 @@ namespace oai::cn::core::pfcp {
 //
 //  // Table 7.5.2.2-1: Create PDR IE within PFCP Session Establishment Request
 //  typedef struct create_pdr_s {
-//    pdr_id_t                    prd_id;
+//    pdr_id_t                    pdr_id;
 //    precedence_t                precedence;
 //    pdi_t                       pdi;
 //    far_id_t                    far_id;

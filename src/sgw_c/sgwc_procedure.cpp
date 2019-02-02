@@ -109,14 +109,14 @@ int create_session_request_procedure::run(shared_ptr<sgw_eps_bearer_context> c)
         ebi_t ebi = {}; if (i.get(ebi)) b.set(ebi);
         bearer_qos_t bearer_qos = {}; if (i.get(bearer_qos)) b.set(bearer_qos);
         // get_s5_s8_u_sgw_fteid
-        fteid_t s5s8_up_fteid = spc.get()->generate_s5s8_up_fteid(sgwc_cfg.s5s8_up.addr4, bearer_qos);
-        b.set_s5_s8_u_sgw_fteid(s5s8_up_fteid);
+        //fteid_t s5s8_up_fteid = spc.get()->generate_s5s8_up_fteid(sgwc_cfg.s5s8_up.addr4, bearer_qos);
+        //b.set_s5_s8_u_sgw_fteid(s5s8_up_fteid);
         s5s8_csr->gtp_ies.add_bearer_context_to_be_created(b);
 
         core::ebi_t cebi = {.ebi = ebi};
         sgw_eps_bearer* eps_bearer = new sgw_eps_bearer();
         eps_bearer->ebi = cebi;
-        eps_bearer->sgw_fteid_s5_s8_up = s5s8_up_fteid;
+        //eps_bearer->sgw_fteid_s5_s8_up = s5s8_up_fteid;
         eps_bearer->eps_bearer_qos = bearer_qos;
         spc.get()->add_eps_bearer(std::shared_ptr<sgw_eps_bearer>(eps_bearer));
       }

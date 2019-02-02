@@ -27,13 +27,13 @@
 */
 #include "async_shell_cmd.hpp"
 #include "common_defs.h"
-#include "conversions.h"
-
+#include "conversions.hpp"
 #include "itti.hpp"
 #include "logger.hpp"
 #include "pgw_app.hpp"
 #include "pgw_config.hpp"
 #include "pgw_s5s8.hpp"
+#include "pgwc_sxab.hpp"
 #include "string.hpp"
 
 #include <stdexcept>
@@ -45,6 +45,7 @@ using namespace oai::cn::util;
 using namespace std;
 
 pgw_s5s8  *pgw_s5s8_inst = nullptr;
+pgwc_sxab *pgwc_sxab_inst = nullptr;
 
 #define SYSTEM_CMD_MAX_STR_SIZE 512
 extern async_shell_cmd *async_shell_cmd_inst;
@@ -131,35 +132,35 @@ teid_t pgw_app::generate_s5s8_cp_teid() {
   s5s8cplteid.insert(teid);
   return teid;
 }
-//------------------------------------------------------------------------------
-teid_t pgw_app::generate_s5s8_up_teid() {
-  teid_t teid =  ++teid_s5s8_up;
-  while ((is_s5s8u_teid_exist(teid)) || (teid == UNASSIGNED_TEID)) {
-    teid =  ++teid_s5s8_up;
-  }
-  s5s8uplteid.insert(teid);
-  return teid;
-}
+////------------------------------------------------------------------------------
+//teid_t pgw_app::generate_s5s8_up_teid() {
+//  teid_t teid =  ++teid_s5s8_up;
+//  while ((is_s5s8u_teid_exist(teid)) || (teid == UNASSIGNED_TEID)) {
+//    teid =  ++teid_s5s8_up;
+//  }
+//  s5s8uplteid.insert(teid);
+//  return teid;
+//}
 //------------------------------------------------------------------------------
 bool pgw_app::is_s5s8c_teid_exist(teid_t& teid_s5s8_cp)
 {
   return bool{s5s8cplteid.count(teid_s5s8_cp) > 0};
 }
-//------------------------------------------------------------------------------
-bool pgw_app::is_s5s8u_teid_exist(teid_t& teid_s5s8_up)
-{
-  return bool{s5s8uplteid.count(teid_s5s8_up) > 0};
-}
+////------------------------------------------------------------------------------
+//bool pgw_app::is_s5s8u_teid_exist(teid_t& teid_s5s8_up)
+//{
+//  return bool{s5s8uplteid.count(teid_s5s8_up) > 0};
+//}
 //------------------------------------------------------------------------------
 void pgw_app::free_s5s8c_teid(const teid_t& teid_s5s8_cp)
 {
   s5s8cplteid.erase (teid_s5s8_cp); // can return value of erase
 }
-//------------------------------------------------------------------------------
-void pgw_app::free_s5s8u_teid(const teid_t& teid_s5s8_up)
-{
-  s5s8uplteid.erase (teid_s5s8_up); // can return value of erase
-}
+////------------------------------------------------------------------------------
+//void pgw_app::free_s5s8u_teid(const teid_t& teid_s5s8_up)
+//{
+//  s5s8uplteid.erase (teid_s5s8_up); // can return value of erase
+//}
 //------------------------------------------------------------------------------
 bool pgw_app::is_imsi64_2_pgw_context(const imsi64_t& imsi64) const
 {
@@ -187,18 +188,18 @@ fteid_t pgw_app::build_s5s8_cp_fteid(const struct in_addr ipv4_address, const te
   fteid.teid_gre_key = teid;
   return fteid;
 }
-//------------------------------------------------------------------------------
-fteid_t pgw_app::build_s5s8_up_fteid(const struct in_addr ipv4_address, const teid_t teid)
-{
-  fteid_t fteid = {};
-  fteid.interface_type = S5_S8_PGW_GTP_U;
-  fteid.v4 = 1;
-  fteid.ipv4_address = ipv4_address;
-  fteid.v6 = 0;
-  fteid.ipv6_address = in6addr_any;
-  fteid.teid_gre_key = teid;
-  return fteid;
-}
+////------------------------------------------------------------------------------
+//fteid_t pgw_app::build_s5s8_up_fteid(const struct in_addr ipv4_address, const teid_t teid)
+//{
+//  fteid_t fteid = {};
+//  fteid.interface_type = S5_S8_PGW_GTP_U;
+//  fteid.v4 = 1;
+//  fteid.ipv4_address = ipv4_address;
+//  fteid.v6 = 0;
+//  fteid.ipv6_address = in6addr_any;
+//  fteid.teid_gre_key = teid;
+//  return fteid;
+//}
 //------------------------------------------------------------------------------
 fteid_t pgw_app::generate_s5s8_cp_fteid(const struct in_addr ipv4_address)
 {
@@ -211,17 +212,17 @@ void  pgw_app::free_s5s8_cp_fteid(const core::fteid_t& fteid)
   s5s8lteid2pgw_context.erase(fteid.teid_gre_key);
   free_s5s8c_teid(fteid.teid_gre_key);
 }
-//------------------------------------------------------------------------------
-fteid_t pgw_app::generate_s5s8_up_fteid(const struct in_addr ipv4_address)
-{
-  teid_t teid = generate_s5s8_up_teid();
-  return build_s5s8_up_fteid(ipv4_address, teid);
-}
-//------------------------------------------------------------------------------
-void  pgw_app::free_s5s8_up_fteid(const core::fteid_t& fteid)
-{
-  free_s5s8u_teid(fteid.teid_gre_key);
-}
+////------------------------------------------------------------------------------
+//fteid_t pgw_app::generate_s5s8_up_fteid(const struct in_addr ipv4_address)
+//{
+//  teid_t teid = generate_s5s8_up_teid();
+//  return build_s5s8_up_fteid(ipv4_address, teid);
+//}
+////------------------------------------------------------------------------------
+//void  pgw_app::free_s5s8_up_fteid(const core::fteid_t& fteid)
+//{
+//  free_s5s8u_teid(fteid.teid_gre_key);
+//}
 
 //------------------------------------------------------------------------------
 bool pgw_app::is_s5s8cpgw_fteid_2_pgw_context(fteid_t& ls5s8_fteid)
@@ -279,9 +280,7 @@ void pgw_app_task (void*)
       break;
 
     case S5S8_CREATE_SESSION_REQUEST:
-      if (itti_s5s8_create_session_request* m = dynamic_cast<itti_s5s8_create_session_request*>(msg)) {
-        pgw_app_inst->handle_itti_msg(ref(*m));
-      }
+      pgw_app_inst->handle_itti_msg(std::static_pointer_cast<itti_s5s8_create_session_request>(shared_msg));
       break;
 
     case S5S8_DELETE_SESSION_REQUEST:
@@ -347,6 +346,7 @@ pgw_app::pgw_app (const std::string& config_file)
 
   try {
     pgw_s5s8_inst = new pgw_s5s8();
+    pgwc_sxab_inst = new pgwc_sxab();
   } catch (std::exception& e) {
     Logger::pgwc_app().error( "Cannot create PGW_APP: %s", e.what() );
     throw e;
@@ -394,31 +394,32 @@ void pgw_app::send_delete_session_response_cause_context_not_found (const uint64
 
 }
 //------------------------------------------------------------------------------
-void pgw_app::handle_itti_msg (itti_s5s8_create_session_request& csreq)
+void pgw_app::handle_itti_msg (std::shared_ptr<itti_s5s8_create_session_request> scsreq)
 {
-  Logger::pgwc_app().debug("Received S5S8 CREATE_SESSION_REQUEST sender teid " TEID_FMT "  gtpc_tx_id %" PRIX64"\n", csreq.teid, csreq.gtpc_tx_id);
+  itti_s5s8_create_session_request* csreq = scsreq.get();
+  Logger::pgwc_app().debug("Received S5S8 CREATE_SESSION_REQUEST sender teid " TEID_FMT "  gtpc_tx_id %" PRIX64"\n", csreq->teid, csreq->gtpc_tx_id);
 
-  if (csreq.gtp_ies.rat_type.rat_type < RAT_TYPE_E_EUTRAN_WB_EUTRAN) {
-    Logger::pgwc_app().warn("Received S5_S8 CREATE_SESSION_REQUEST with RAT != RAT_TYPE_E_EUTRAN_WB_EUTRAN: type %d", csreq.gtp_ies.rat_type);
+  if (csreq->gtp_ies.rat_type.rat_type < RAT_TYPE_E_EUTRAN_WB_EUTRAN) {
+    Logger::pgwc_app().warn("Received S5_S8 CREATE_SESSION_REQUEST with RAT != RAT_TYPE_E_EUTRAN_WB_EUTRAN: type %d", csreq->gtp_ies.rat_type);
   }
 
-  if (csreq.gtp_ies.sender_fteid_for_cp.interface_type != S5_S8_SGW_GTP_C) {
-    Logger::pgwc_app().warn("Received S5_S8 CREATE_SESSION_REQUEST with sender_fteid_for_cp != S5_S8_SGW_GTP_C %d, ignore message", csreq.gtp_ies.sender_fteid_for_cp.interface_type);
+  if (csreq->gtp_ies.sender_fteid_for_cp.interface_type != S5_S8_SGW_GTP_C) {
+    Logger::pgwc_app().warn("Received S5_S8 CREATE_SESSION_REQUEST with sender_fteid_for_cp != S5_S8_SGW_GTP_C %d, ignore message", csreq->gtp_ies.sender_fteid_for_cp.interface_type);
     return;
   }
-  if (csreq.gtp_ies.sender_fteid_for_cp.teid_gre_key == 0) {
+  if (csreq->gtp_ies.sender_fteid_for_cp.teid_gre_key == 0) {
     // MME sent request with teid = 0. This is not valid...
     Logger::pgwc_app().warn("Received S5_S8 CREATE_SESSION_REQUEST with sender_fteid_for_cp.teid = 0, ignore message");
     return;
   }
-  if ((csreq.teid) && (not pgw_app_inst->is_s5s8c_teid_exist(csreq.teid))) {
-    Logger::sgwc_app().warn("Received S5_S8 CREATE_SESSION_REQUEST with dest teid " TEID_FMT " unknown, ignore message\n", csreq.teid);
+  if ((csreq->teid) && (not pgw_app_inst->is_s5s8c_teid_exist(csreq->teid))) {
+    Logger::sgwc_app().warn("Received S5_S8 CREATE_SESSION_REQUEST with dest teid " TEID_FMT " unknown, ignore message\n", csreq->teid);
     return;
   }
 
-  if (not pgw_cfg.is_apn_handled(csreq.gtp_ies.apn.access_point_name, csreq.gtp_ies.pdn_type)) {
+  if (not pgw_cfg.is_apn_handled(csreq->gtp_ies.apn.access_point_name, csreq->gtp_ies.pdn_type)) {
     // MME sent request with teid = 0. This is not valid...
-    Logger::pgwc_app().warn("Received CREATE_SESSION_REQUEST unknown requested APN %s, ignore message", csreq.gtp_ies.apn.access_point_name.c_str());
+    Logger::pgwc_app().warn("Received CREATE_SESSION_REQUEST unknown requested APN %s, ignore message", csreq->gtp_ies.apn.access_point_name.c_str());
     // TODO send reply
     return;
   }
@@ -426,11 +427,11 @@ void pgw_app::handle_itti_msg (itti_s5s8_create_session_request& csreq)
 
   shared_ptr<pgw_context> pc;
   core::imsi_t imsi = {};
-  if (csreq.gtp_ies.get(imsi)) {
+  if (csreq->gtp_ies.get(imsi)) {
     // imsi not authenticated
     core::indication_t indication = {};
-    if ((csreq.gtp_ies.get(indication)) && (indication.uimsi)){
-      Logger::pgwc_app().debug("TODO S5_S8 CREATE_SESSION_REQUEST (no AUTHENTICATED IMSI) sender teid " TEID_FMT "  gtpc_tx_id %" PRIX64"\n", csreq.teid, csreq.gtpc_tx_id);
+    if ((csreq->gtp_ies.get(indication)) && (indication.uimsi)){
+      Logger::pgwc_app().debug("TODO S5_S8 CREATE_SESSION_REQUEST (no AUTHENTICATED IMSI) sender teid " TEID_FMT "  gtpc_tx_id %" PRIX64"\n", csreq->teid, csreq->gtpc_tx_id);
       return;
     } else {
       imsi64_t imsi64 = imsi_to_imsi64(&imsi);
@@ -442,21 +443,21 @@ void pgw_app::handle_itti_msg (itti_s5s8_create_session_request& csreq)
       }
     }
   } else {
-    if (csreq.teid) {
-      core::fteid_t l_fteid = pgw_app_inst->build_s5s8_cp_fteid(pgw_cfg.s5s8_cp.addr4, csreq.teid);
-      if (is_s5s8c_teid_exist(csreq.teid)) {
+    if (csreq->teid) {
+      core::fteid_t l_fteid = pgw_app_inst->build_s5s8_cp_fteid(pgw_cfg.s5s8_cp.addr4, csreq->teid);
+      if (is_s5s8c_teid_exist(csreq->teid)) {
         pc = s5s8cpgw_fteid_2_pgw_context(l_fteid);
       } else {
-        Logger::pgwc_app().debug("Discarding S5_S8 CREATE_SESSION_REQUEST sender teid " TEID_FMT "  gtpc_tx_id %" PRIX64", invalid teid\n", csreq.teid, csreq.gtpc_tx_id);
+        Logger::pgwc_app().debug("Discarding S5_S8 CREATE_SESSION_REQUEST sender teid " TEID_FMT "  gtpc_tx_id %" PRIX64", invalid teid\n", csreq->teid, csreq->gtpc_tx_id);
         return;
       }
     } else {
       // TODO
-      Logger::pgwc_app().debug("TODO S5_S8 CREATE_SESSION_REQUEST (no IMSI) sender teid " TEID_FMT "  gtpc_tx_id %" PRIX64"\n", csreq.teid, csreq.gtpc_tx_id);
+      Logger::pgwc_app().debug("TODO S5_S8 CREATE_SESSION_REQUEST (no IMSI) sender teid " TEID_FMT "  gtpc_tx_id %" PRIX64"\n", csreq->teid, csreq->gtpc_tx_id);
       return;
     }
   }
-  pc.get()->handle_itti_msg(csreq);
+  pc.get()->handle_itti_msg(scsreq);
 }
 //------------------------------------------------------------------------------
 void pgw_app::handle_itti_msg (itti_s5s8_delete_session_request& dsreq)

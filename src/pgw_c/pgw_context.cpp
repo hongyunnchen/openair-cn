@@ -60,9 +60,9 @@ std::string pgw_eps_bearer::toString() const
 //------------------------------------------------------------------------------
 void pgw_eps_bearer::deallocate_ressources()
 {
-  Logger::pgwc_app().info( "TODO remove_eps_bearer(%d) OpenFlow", ebi.ebi);
-  if (not is_fteid_zero(pgw_fteid_s5_s8_up))
-    pgw_app_inst->free_s5s8_up_fteid(pgw_fteid_s5_s8_up);
+  Logger::pgwc_app().info( "pgw_eps_bearer::deallocate_ressources(%d)", ebi.ebi);
+  //if (not is_fteid_zero(pgw_fteid_s5_s8_up))
+    //pgw_app_inst->free_s5s8_up_fteid(pgw_fteid_s5_s8_up);
   clear();
 }
 //------------------------------------------------------------------------------
@@ -135,8 +135,26 @@ void pgw_pdn_connection::deallocate_ressources(const std::string& apn)
 void pgw_pdn_connection::generate_seid()
 {
   // DO it simple now:
-  seid = pgw_fteid_s5_s8_cp.teid_gre_key | (((uint64_t)pgw_cfg.instance) << 32)
+  seid = pgw_fteid_s5_s8_cp.teid_gre_key | (((uint64_t)pgw_cfg.instance) << 32);
 }
+//------------------------------------------------------------------------------
+// TODO check if prd_id should be uniq in the (S)PGW-U or in the context of a pdn connection
+void pgw_pdn_connection::generate_pdr_id(core::pfcp::pdr_id_t& pdr_id)
+{
+  // make things simple, will write a more robust generator once scope of rule_id will be known
+  uint16_t r =  ++prd_id_generator;
+  if (r == 0) {
+    r = ++prd_id_generator;
+  }
+  pdr_id.rule_id = r;
+}
+//------------------------------------------------------------------------------
+// TODO check if prd_id should be uniq in the (S)PGW-U or in the context of a pdn connection
+void pgw_pdn_connection::release_pdr_id(const core::pfcp::pdr_id_t& pdr_id)
+{
+  // TODO
+}
+
 //------------------------------------------------------------------------------
 std::string pgw_pdn_connection::toString() const
 {
@@ -150,6 +168,7 @@ std::string pgw_pdn_connection::toString() const
   s.append("\tSGW FTEID S5S8 CP:\t\t").append(oai::cn::core::toString(sgw_fteid_s5_s8_cp)).append("\n");
   s.append("\tPGW FTEID S5S8 CP:\t\t").append(oai::cn::core::toString(pgw_fteid_s5_s8_cp)).append("\n");
   s.append("\tDefault EBI:\t\t\t").append(std::to_string(default_bearer.ebi)).append("\n");
+  s.append("\tSEID:\t\t\t").append(std::to_string(seid)).append("\n");
   for (auto it : eps_bearers) {
       s.append(it.second.toString());
   }
@@ -286,19 +305,47 @@ shared_ptr<apn_context> pgw_context::find_apn_context(const string apn)
   // same return nullptr;
 }
 //------------------------------------------------------------------------------
-void pgw_context::handle_itti_msg (itti_s5s8_create_session_request& csreq)
+void pgw_context::insert_procedure(pgw_procedure* proc)
 {
+  pending_procedures.push_back(shared_ptr<pgw_procedure>(proc));
+}
+//------------------------------------------------------------------------------
+shared_ptr<pgw_procedure> pgw_context::find_procedure(const uint64_t& trxn_id)
+{
+  auto found = std::find_if(pending_procedures.begin(), pending_procedures.end(), [trxn_id](std::shared_ptr<pgw_procedure> const& i) -> bool { return i.get()->trxn_id == trxn_id;});
+  if (found != pending_procedures.end()) {
+    return *found;
+  }
+  return shared_ptr<pgw_procedure>(nullptr);
+}
+//------------------------------------------------------------------------------
+void pgw_context::remove_procedure(pgw_procedure* proc)
+{
+  auto found = std::find_if(pending_procedures.begin(), pending_procedures.end(), [proc](std::shared_ptr<pgw_procedure> const& i) {
+    return i.get() == proc;
+  });
+  if (found != pending_procedures.end()) {
+    pending_procedures.erase(found);
+  }
+}
+
+//------------------------------------------------------------------------------
+void pgw_context::handle_itti_msg (std::shared_ptr<itti_s5s8_create_session_request> s5_trigger)
+{
+  itti_s5s8_create_session_request* csreq = s5_trigger.get();
   // If PCEF integrated in PGW, TODO create a procedure
-  pdn_duo_t apn_pdn = find_pdn_connection(csreq.gtp_ies.apn.access_point_name, csreq.teid);
+  pdn_duo_t apn_pdn = find_pdn_connection(csreq->gtp_ies.apn.access_point_name, csreq->teid);
   shared_ptr<apn_context> sa = apn_pdn.first;
   shared_ptr<pgw_pdn_connection> sp = apn_pdn.second;
 
+  // The itti_s5s8_create_session_response will be built completly after PFCP exchange (U plane may alloc U-FTEIDs)
   cause_t            cause = {.cause_value = REQUEST_ACCEPTED, .pce = 0, .bce = 0, .cs = 0};
   itti_s5s8_create_session_response *s5s8_csr = new itti_s5s8_create_session_response(TASK_PGWC_APP, TASK_PGWC_S5S8);
+  std::shared_ptr<itti_s5s8_create_session_response> sx_triggered = std::shared_ptr<itti_s5s8_create_session_response>(s5s8_csr);
 
-  csreq.gtp_ies.get(imsi);
+  csreq->gtp_ies.get(imsi);
   core::indication_t indication = {};
-  if (csreq.gtp_ies.get(indication)) {
+  if (csreq->gtp_ies.get(indication)) {
     if (indication.uimsi) {
       imsi_unauthenticated_indicator = true;
     }
@@ -307,9 +354,9 @@ void pgw_context::handle_itti_msg (itti_s5s8_create_session_request& csreq)
   if (nullptr == sa.get()) {
     apn_context *a = new (apn_context);
     a->in_use = true;
-    a->apn_in_use = csreq.gtp_ies.apn.access_point_name;
-    if (csreq.gtp_ies.ie_presence_mask & GTPV2C_CREATE_SESSION_REQUEST_PR_IE_APN_AMBR) {
-      a->apn_ambr = csreq.gtp_ies.ambr;
+    a->apn_in_use = csreq->gtp_ies.apn.access_point_name;
+    if (csreq->gtp_ies.ie_presence_mask & GTPV2C_CREATE_SESSION_REQUEST_PR_IE_APN_AMBR) {
+      a->apn_ambr = csreq->gtp_ies.ambr;
     }
     sa = insert_apn(a);
   } else {
@@ -317,16 +364,15 @@ void pgw_context::handle_itti_msg (itti_s5s8_create_session_request& csreq)
   }
   //------
   // BEARER_CONTEXTS_TO_BE_CREATED
-  // TODO BEARER_CONTEXTS_TO_BE_REMOVED
   //------
   if (nullptr == sp.get()) {
     pgw_pdn_connection *p = new (pgw_pdn_connection);
-    if (not csreq.gtp_ies.get(p->pdn_type)) {
+    if (not csreq->gtp_ies.get(p->pdn_type)) {
       // default
       p->pdn_type.pdn_type = PDN_TYPE_E_IPV4;
     }
-    p->default_bearer = csreq.gtp_ies.bearer_contexts_to_be_created.at(0).eps_bearer_id;
-    p->sgw_fteid_s5_s8_cp = csreq.gtp_ies.sender_fteid_for_cp;
+    p->default_bearer = csreq->gtp_ies.bearer_contexts_to_be_created.at(0).eps_bearer_id;
+    p->sgw_fteid_s5_s8_cp = csreq->gtp_ies.sender_fteid_for_cp;
     p->pgw_fteid_s5_s8_cp = pgw_app_inst->generate_s5s8_cp_fteid(pgw_cfg.s5s8_cp.addr4);
     pgw_app_inst->set_s5s8cpgw_fteid_2_pgw_context(p->pgw_fteid_s5_s8_cp, shared_from_this());
     sp = sa.get()->insert_pdn_connection(p);
@@ -334,42 +380,44 @@ void pgw_context::handle_itti_msg (itti_s5s8_create_session_request& csreq)
   } else {
     // TODO bearer context to be removed
   }
-  for (auto it : csreq.gtp_ies.bearer_contexts_to_be_created) {
-    pgw_eps_bearer& eps_bearer = sp.get()->get_eps_bearer(it.eps_bearer_id);
-    eps_bearer.ebi = it.eps_bearer_id;
-    eps_bearer.tft = it.tft;
-    eps_bearer.pgw_fteid_s5_s8_up = pgw_app_inst->generate_s5s8_up_fteid(pgw_cfg.s5s8_up.addr4);
-    // Not now (no split SGW-PGW)
-    //eps_bearer.sgw_fteid_s5_s8_up = it.s5_s8_u_sgw_fteid;
-    eps_bearer.eps_bearer_qos = it.bearer_level_qos;
-    sp.get()->add_eps_bearer(eps_bearer);
+//  for (auto it : csreq->gtp_ies.bearer_contexts_to_be_created) {
+//    pgw_eps_bearer& eps_bearer = sp.get()->get_eps_bearer(it.eps_bearer_id);
+//    eps_bearer.ebi = it.eps_bearer_id;
+//    eps_bearer.tft = it.tft;
+//    //eps_bearer.pgw_fteid_s5_s8_up = pgw_app_inst->generate_s5s8_up_fteid(pgw_cfg.s5s8_up.addr4);
+//    // Not now (no split SGW-PGW)
+//    //eps_bearer.sgw_fteid_s5_s8_up = it.s5_s8_u_sgw_fteid;
+//    eps_bearer.eps_bearer_qos = it.bearer_level_qos;
+//    sp.get()->add_eps_bearer(eps_bearer);
+//
+//    bearer_context_created_within_create_session_response bcc = {};
+//    core::cause_t bcc_cause = {.cause_value = REQUEST_ACCEPTED, .pce = 0, .bce = 0, .cs = 0};
+//    bcc.set(eps_bearer.ebi);
+//    bcc.set(bcc_cause);
+//    bcc.set(eps_bearer.pgw_fteid_s5_s8_up, 2);
+//    // only if modified bcc.set(bearer_level_qos);
+//    s5s8_csr->gtp_ies.add_bearer_context_created(bcc);
+//  }
 
-    bearer_context_created_within_create_session_response bcc = {};
-    core::cause_t bcc_cause = {.cause_value = REQUEST_ACCEPTED, .pce = 0, .bce = 0, .cs = 0};
-    bcc.set(eps_bearer.ebi);
-    bcc.set(bcc_cause);
-    bcc.set(eps_bearer.pgw_fteid_s5_s8_up, 2);
-    // only if modified bcc.set(bearer_level_qos);
-    s5s8_csr->gtp_ies.add_bearer_context_created(bcc);
-  }
-  for (auto it : csreq.gtp_ies.bearer_contexts_to_be_removed) {
-    pgw_eps_bearer&  eps_bearer = sp.get()->get_eps_bearer(it.eps_bearer_id);
-    if (eps_bearer.ebi.ebi == it.eps_bearer_id.ebi) {
-      core::cause_t bcc_cause = {.cause_value = REQUEST_ACCEPTED, .pce = 0, .bce = 0, .cs = 0};
-      bearer_context_marked_for_removal_within_create_session_response bcc = {};
-      bcc.set(eps_bearer.ebi);
-      bcc.set(bcc_cause);
-      s5s8_csr->gtp_ies.add_bearer_context_marked_for_removal(bcc);
-      // remove the bearer
-      sp.get()->remove_eps_bearer(it.eps_bearer_id);
-    }
-
-    bearer_context_marked_for_removal_within_create_session_response bcc = {};
-    core::cause_t bcc_cause = {.cause_value = REQUEST_ACCEPTED, .pce = 0, .bce = 0, .cs = 0};
-    bcc.set(it.eps_bearer_id);
-    bcc.set(bcc_cause);
-    s5s8_csr->gtp_ies.add_bearer_context_marked_for_removal(bcc);
-  }
+//  // TODO: remove this code if SPGW split (only for TAU/HO procedures)
+//  for (auto it : csreq->gtp_ies.bearer_contexts_to_be_removed) {
+//    pgw_eps_bearer&  eps_bearer = sp.get()->get_eps_bearer(it.eps_bearer_id);
+//    if (eps_bearer.ebi.ebi == it.eps_bearer_id.ebi) {
+//      core::cause_t bcc_cause = {.cause_value = REQUEST_ACCEPTED, .pce = 0, .bce = 0, .cs = 0};
+//      bearer_context_marked_for_removal_within_create_session_response bcc = {};
+//      bcc.set(eps_bearer.ebi);
+//      bcc.set(bcc_cause);
+//      s5s8_csr->gtp_ies.add_bearer_context_marked_for_removal(bcc);
+//      // remove the bearer
+//      sp.get()->remove_eps_bearer(it.eps_bearer_id);
+//    }
+//
+//    bearer_context_marked_for_removal_within_create_session_response bcc = {};
+//    core::cause_t bcc_cause = {.cause_value = REQUEST_ACCEPTED, .pce = 0, .bce = 0, .cs = 0};
+//    bcc.set(it.eps_bearer_id);
+//    bcc.set(bcc_cause);
+//    s5s8_csr->gtp_ies.add_bearer_context_marked_for_removal(bcc);
+//  }
 
   //------
   // PAA
@@ -378,7 +426,7 @@ void pgw_context::handle_itti_msg (itti_s5s8_create_session_request& csreq)
   paa_t paa = {};
 //  if (cause.cause_value == REQUEST_ACCEPTED) {
 //    paa.pdn_type = sp.get()->pdn_type;
-//    bool paa_res = csreq.gtp_ies.get(paa);
+//    bool paa_res = csreq->gtp_ies.get(paa);
 //    if ((not paa_res) || (not is_paa_ip_assigned(paa))) {
 //      int ret = pgw_app_inst->static_paa_get_free_paa (sa.get()->apn_in_use, paa);
 //      if (ret == RETURNok) {
@@ -401,7 +449,7 @@ void pgw_context::handle_itti_msg (itti_s5s8_create_session_request& csreq)
       .ci_ipv4_address_allocation_via_dhcpv4 = 0,
       .ci_ipv4_link_mtu_request = 0};
 
-  pgw_app_inst->process_pco_request(csreq.gtp_ies.pco, pco_resp, pco_ids);
+  pgw_app_inst->process_pco_request(csreq->gtp_ies.pco, pco_resp, pco_ids);
   switch (sp.get()->pdn_type.pdn_type) {
   case PDN_TYPE_E_IPV4: {
       // Use NAS by default if no preference is set.
@@ -425,7 +473,7 @@ void pgw_context::handle_itti_msg (itti_s5s8_create_session_request& csreq)
       // and using them here in conditional logic. We will also want to
       // implement different logic between the PDN types.
       if (!pco_ids.ci_ipv4_address_allocation_via_dhcpv4) {
-        bool paa_res = csreq.gtp_ies.get(paa);
+        bool paa_res = csreq->gtp_ies.get(paa);
         if ((not paa_res) || (not is_paa_ip_assigned(paa))) {
           int ret = pgw_app_inst->static_paa_get_free_paa (sa.get()->apn_in_use, paa);
           if (ret == RETURNok) {
@@ -442,7 +490,7 @@ void pgw_context::handle_itti_msg (itti_s5s8_create_session_request& csreq)
     break;
 
   case PDN_TYPE_E_IPV6: {
-      bool paa_res = csreq.gtp_ies.get(paa);
+      bool paa_res = csreq->gtp_ies.get(paa);
       if ((not paa_res) || (not is_paa_ip_assigned(paa))) {
         int ret = pgw_app_inst->static_paa_get_free_paa (sa.get()->apn_in_use, paa);
         if (ret == RETURNok) {
@@ -456,7 +504,7 @@ void pgw_context::handle_itti_msg (itti_s5s8_create_session_request& csreq)
     break;
 
   case PDN_TYPE_E_IPV4V6: {
-      bool paa_res = csreq.gtp_ies.get(paa);
+      bool paa_res = csreq->gtp_ies.get(paa);
       if ((not paa_res) || (not is_paa_ip_assigned(paa))) {
         int ret = pgw_app_inst->static_paa_get_free_paa (sa.get()->apn_in_use, paa);
         if (ret == RETURNok) {
@@ -485,9 +533,9 @@ void pgw_context::handle_itti_msg (itti_s5s8_create_session_request& csreq)
   //------
   // GTPV2C-Stack
   //------
-  s5s8_csr->gtpc_tx_id = csreq.gtpc_tx_id;
+  s5s8_csr->gtpc_tx_id = csreq->gtpc_tx_id;
   s5s8_csr->teid = sp.get()->sgw_fteid_s5_s8_cp.teid_gre_key;
-  s5s8_csr->r_endpoint = csreq.r_endpoint;
+  s5s8_csr->r_endpoint = csreq->r_endpoint;
 
   //------
   // PAA, PCO, s5_s8_pgw_fteid
@@ -499,7 +547,7 @@ void pgw_context::handle_itti_msg (itti_s5s8_create_session_request& csreq)
       sp.get()->set(paa);
     } else {
       // Valid PAA sent in CSR ?
-      bool paa_res = csreq.gtp_ies.get(paa);
+      bool paa_res = csreq->gtp_ies.get(paa);
       if ((paa_res) && ( is_paa_ip_assigned(paa))) {
         sp.get()->set(paa);
       }
@@ -511,23 +559,25 @@ void pgw_context::handle_itti_msg (itti_s5s8_create_session_request& csreq)
     //  pgw_fq_csid = {};
     //  sgw_fq_csid = {};
 
-    session_establishment_procedure* p = new session_establishment_procedure(s5s8_csr);
-    insert_procedure(p);
-    if (p->run(std::shared_from_this())) {
+    session_establishment_procedure* proc = new session_establishment_procedure(sp);
+    insert_procedure(proc);
+    if (proc->run(s5_trigger, sx_triggered)) {
       // TODO handle error code
       Logger::pgwc_app().info( "S5S8 CREATE_SESSION_REQUEST procedure failed");
-      remove_procedure(p);
+      remove_procedure(proc);
     } else {
     }
   } else {
 
   }
 
-  std::shared_ptr<itti_s5s8_create_session_response> msg = std::shared_ptr<itti_s5s8_create_session_response>(s5s8_csr);
-  int ret = itti_inst->send_msg(msg);
-  if (RETURNok != ret) {
-    Logger::pgwc_app().error( "Could not send ITTI message %s to task TASK_PGWC_S5S8", s5s8_csr->get_msg_name());
-  }
+  // Do not send now
+//  if (msg.get()) {
+//    int ret = itti_inst->send_msg(msg);
+//    if (RETURNok != ret) {
+//      Logger::pgwc_app().error( "Could not send ITTI message %s to task TASK_PGWC_S5S8", s5s8_csr->get_msg_name());
+//    }
+//  }
 }
 //------------------------------------------------------------------------------
 void pgw_context::handle_itti_msg (itti_s5s8_delete_session_request& dsreq)
